@@ -1,16 +1,17 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyaH7bu_g5t-FRx6MjZmznhVbo6gDIkJLRiSCvR5zV5wj9lVEPT-dxMjMqKNqu8qwtB2A/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
 
 let shopData = {
   gallery: [],
   inventory: []
 };
 
-let staffToken = localStorage.getItem("staffToken") || "";
+let staffToken =
+  localStorage.getItem("staffToken") || "";
 
 
-/* =========================
+/* ================================
    API
-========================= */
+================================ */
 
 async function api(action, data = {}) {
 
@@ -28,7 +29,7 @@ async function api(action, data = {}) {
 
   if (!response.ok) {
     throw new Error(
-      "Could not connect to the shop server."
+      "Could not connect to the server."
     );
   }
 
@@ -49,9 +50,9 @@ async function api(action, data = {}) {
 }
 
 
-/* =========================
-   HTML SAFETY
-========================= */
+/* ================================
+   HTML ESCAPING
+================================ */
 
 function escapeHTML(value) {
 
@@ -65,9 +66,9 @@ function escapeHTML(value) {
 }
 
 
-/* =========================
+/* ================================
    LOAD SHOP
-========================= */
+================================ */
 
 async function loadShop() {
 
@@ -81,13 +82,16 @@ async function loadShop() {
     const response =
       await api("catalog");
 
-    shopData = {
-      gallery:
-        response.gallery || [],
+    shopData.gallery =
+      Array.isArray(response.gallery)
+        ? response.gallery
+        : [];
 
-      inventory:
-        response.inventory || []
-    };
+    shopData.inventory =
+      Array.isArray(response.inventory)
+        ? response.inventory
+        : [];
+
 
     loadGallery();
     loadPrints();
@@ -95,26 +99,30 @@ async function loadShop() {
 
   } catch (error) {
 
+    console.error(error);
+
     if (gallery) {
 
       gallery.innerHTML =
         "<div class='error-box'>" +
         "<h3>Shop unavailable</h3>" +
         "<p>" +
-        escapeHTML(error.message) +
+        escapeHTML(
+          error.message
+        ) +
         "</p>" +
         "</div>";
 
     }
 
-    console.error(error);
   }
+
 }
 
 
-/* =========================
+/* ================================
    GALLERY
-========================= */
+================================ */
 
 function loadGallery() {
 
@@ -127,8 +135,10 @@ function loadGallery() {
     return;
   }
 
+
   const prints =
-    shopData.gallery || [];
+    shopData.gallery;
+
 
   if (prints.length === 0) {
 
@@ -145,23 +155,24 @@ function loadGallery() {
   gallery.innerHTML =
     prints.map(function(print) {
 
-      let imageHTML;
+      let imageHTML =
+        "<div class='no-image'>" +
+        "3D PRINT" +
+        "</div>";
+
 
       if (print.imageUrl) {
 
         imageHTML =
           "<img src='" +
-          escapeHTML(print.imageUrl) +
+          escapeHTML(
+            print.imageUrl
+          ) +
           "' alt='" +
-          escapeHTML(print.name) +
+          escapeHTML(
+            print.name
+          ) +
           "'>";
-
-      } else {
-
-        imageHTML =
-          "<div class='no-image'>" +
-          "3D PRINT" +
-          "</div>";
 
       }
 
@@ -174,7 +185,9 @@ function loadGallery() {
           "<div class='print-info'>" +
 
             "<h3>" +
-            escapeHTML(print.name) +
+            escapeHTML(
+              print.name
+            ) +
             "</h3>" +
 
             "<p>" +
@@ -187,7 +200,9 @@ function loadGallery() {
             "type='button' " +
             "class='button order-print' " +
             "data-id='" +
-            escapeHTML(print.id) +
+            escapeHTML(
+              print.id
+            ) +
             "'>" +
             "Order this" +
             "</button>" +
@@ -220,6 +235,7 @@ function loadGallery() {
               "printSelect"
             );
 
+
           if (orderType) {
 
             orderType.value =
@@ -229,6 +245,7 @@ function loadGallery() {
 
           }
 
+
           if (printSelect) {
 
             printSelect.value =
@@ -236,10 +253,12 @@ function loadGallery() {
 
           }
 
+
           const order =
             document.getElementById(
               "order"
             );
+
 
           if (order) {
 
@@ -257,9 +276,9 @@ function loadGallery() {
 }
 
 
-/* =========================
-   PRINT SELECT
-========================= */
+/* ================================
+   PRINT DROPDOWN
+================================ */
 
 function loadPrints() {
 
@@ -272,13 +291,14 @@ function loadPrints() {
     return;
   }
 
+
   select.innerHTML =
     "<option value=''>" +
     "Choose a print..." +
     "</option>";
 
 
-  (shopData.gallery || [])
+  shopData.gallery
     .forEach(function(print) {
 
       const option =
@@ -292,16 +312,18 @@ function loadPrints() {
       option.textContent =
         print.name;
 
-      select.appendChild(option);
+      select.appendChild(
+        option
+      );
 
     });
 
 }
 
 
-/* =========================
+/* ================================
    FILAMENT TYPES
-========================= */
+================================ */
 
 function loadFilamentTypes() {
 
@@ -314,29 +336,58 @@ function loadFilamentTypes() {
     return;
   }
 
+
   const types = [];
 
 
-  (shopData.inventory || [])
+  shopData.inventory
     .forEach(function(item) {
 
+      const inStock =
+        String(
+          item.inStock
+        )
+        .trim()
+        .toLowerCase();
+
+
       const available =
-        String(item.inStock)
-          .toLowerCase() !==
-        "false";
+        inStock !== "false" &&
+        inStock !== "no" &&
+        inStock !== "0" &&
+        inStock !== "";
 
 
       if (
         available &&
-        item.type &&
-        !types.includes(
-          item.type
-        )
+        item.type
       ) {
 
-        types.push(
-          item.type
-        );
+        const type =
+          String(
+            item.type
+          ).trim();
+
+
+        const alreadyExists =
+          types.some(function(existing) {
+
+            return (
+              existing.toLowerCase() ===
+              type.toLowerCase()
+            );
+
+          });
+
+
+        if (
+          type &&
+          !alreadyExists
+        ) {
+
+          types.push(type);
+
+        }
 
       }
 
@@ -369,104 +420,184 @@ function loadFilamentTypes() {
   });
 
 
-  loadColors();
+  /*
+   * Reset colors when the
+   * filament type list is loaded.
+   */
+
+  resetColors();
 
 }
 
 
-/* =========================
-   COLORS
-========================= */
+/* ================================
+   RESET COLORS
+================================ */
+
+function resetColors() {
+
+  const colorSelect =
+    document.getElementById(
+      "colorSelect"
+    );
+
+  if (!colorSelect) {
+    return;
+  }
+
+
+  colorSelect.innerHTML =
+    "<option value=''>" +
+    "Choose a color..." +
+    "</option>";
+
+}
+
+
+/* ================================
+   LOAD COLORS
+================================ */
 
 function loadColors() {
 
   const typeSelect =
-    document.getElementById("typeSelect");
+    document.getElementById(
+      "typeSelect"
+    );
 
   const colorSelect =
-    document.getElementById("colorSelect");
+    document.getElementById(
+      "colorSelect"
+    );
 
-  if (!typeSelect || !colorSelect) {
+
+  if (
+    !typeSelect ||
+    !colorSelect
+  ) {
     return;
   }
 
-  const selectedType =
-    String(typeSelect.value).trim();
 
-  colorSelect.innerHTML =
-    "<option value=''>Choose a color...</option>";
+  const selectedType =
+    String(
+      typeSelect.value || ""
+    ).trim();
+
+
+  resetColors();
+
 
   if (!selectedType) {
     return;
   }
 
+
   const colors = [];
 
-  (shopData.inventory || []).forEach(function(item) {
 
-    const itemType =
-      String(item.type || "").trim();
+  shopData.inventory
+    .forEach(function(item) {
 
-    const itemColor =
-      String(item.color || "").trim();
+      const itemType =
+        String(
+          item.type || ""
+        ).trim();
 
-    const inStock =
-      String(item.inStock)
+
+      const itemColor =
+        String(
+          item.color || ""
+        ).trim();
+
+
+      const stock =
+        String(
+          item.inStock
+        )
         .trim()
         .toLowerCase();
 
-    const available =
-      inStock !== "false" &&
-      inStock !== "no" &&
-      inStock !== "0" &&
-      inStock !== "";
 
-    if (
-      available &&
-      itemType.toLowerCase() ===
-        selectedType.toLowerCase() &&
-      itemColor &&
-      !colors.some(function(existing) {
-        return existing.toLowerCase() ===
-          itemColor.toLowerCase();
-      })
-    ) {
-      colors.push(itemColor);
-    }
+      const available =
+        stock !== "false" &&
+        stock !== "no" &&
+        stock !== "0" &&
+        stock !== "";
 
-  });
+
+      if (
+        available &&
+        itemType.toLowerCase() ===
+          selectedType.toLowerCase() &&
+        itemColor
+      ) {
+
+        const exists =
+          colors.some(function(existing) {
+
+            return (
+              existing.toLowerCase() ===
+              itemColor.toLowerCase()
+            );
+
+          });
+
+
+        if (!exists) {
+
+          colors.push(
+            itemColor
+          );
+
+        }
+
+      }
+
+    });
+
 
   colors.forEach(function(color) {
 
     const option =
-      document.createElement("option");
+      document.createElement(
+        "option"
+      );
 
-    option.value = color;
-    option.textContent = color;
+    option.value =
+      color;
 
-    colorSelect.appendChild(option);
+    option.textContent =
+      color;
+
+    colorSelect.appendChild(
+      option
+    );
 
   });
 
 }
 
-/* =========================
+
+/* ================================
    ORDER TYPE
-========================= */
+================================ */
 
 function updateOrderType() {
 
-  const typeElement =
+  const orderType =
     document.getElementById(
       "orderType"
     );
 
-  if (!typeElement) {
+
+  if (!orderType) {
     return;
   }
 
+
   const type =
-    typeElement.value;
+    orderType.value;
 
 
   const galleryChoice =
@@ -489,6 +620,7 @@ function updateOrderType() {
       "linkChoice"
     );
 
+
   const printSelect =
     document.getElementById(
       "printSelect"
@@ -509,8 +641,6 @@ function updateOrderType() {
       "modelLink"
     );
 
-
-  /* Hide everything */
 
   if (galleryChoice) {
     galleryChoice.style.display =
@@ -554,9 +684,10 @@ function updateOrderType() {
   }
 
 
-  /* Gallery */
-
-  if (type === "gallery") {
+  if (
+    type ===
+    "gallery"
+  ) {
 
     if (galleryChoice) {
       galleryChoice.style.display =
@@ -571,10 +702,9 @@ function updateOrderType() {
   }
 
 
-  /* File */
-
-  else if (
-    type === "file"
+  if (
+    type ===
+    "file"
   ) {
 
     if (customFileChoice) {
@@ -590,10 +720,9 @@ function updateOrderType() {
   }
 
 
-  /* Idea */
-
-  else if (
-    type === "idea"
+  if (
+    type ===
+    "idea"
   ) {
 
     if (ideaChoice) {
@@ -609,10 +738,9 @@ function updateOrderType() {
   }
 
 
-  /* Link */
-
-  else if (
-    type === "link"
+  if (
+    type ===
+    "link"
   ) {
 
     if (linkChoice) {
@@ -630,9 +758,9 @@ function updateOrderType() {
 }
 
 
-/* =========================
-   FILE BASE64
-========================= */
+/* ================================
+   FILE TO BASE64
+================================ */
 
 function fileToBase64(file) {
 
@@ -647,19 +775,49 @@ function fileToBase64(file) {
         function() {
 
           const result =
-            reader.result;
+            String(
+              reader.result
+            );
+
+
+          const comma =
+            result.indexOf(",");
+
+
+          if (
+            comma === -1
+          ) {
+
+            reject(
+              new Error(
+                "Could not read the file."
+              )
+            );
+
+            return;
+
+          }
 
 
           resolve(
-            String(result)
-              .split(",")[1]
+            result.substring(
+              comma + 1
+            )
           );
 
         };
 
 
       reader.onerror =
-        reject;
+        function() {
+
+          reject(
+            new Error(
+              "Could not read the file."
+            )
+          );
+
+        };
 
 
       reader.readAsDataURL(
@@ -672,9 +830,9 @@ function fileToBase64(file) {
 }
 
 
-/* =========================
+/* ================================
    ORDER FORM
-========================= */
+================================ */
 
 const orderForm =
   document.getElementById(
@@ -698,11 +856,13 @@ if (orderForm) {
 
 
       if (result) {
+
         result.className =
           "success-message";
 
         result.textContent =
           "Submitting order...";
+
       }
 
 
@@ -710,28 +870,31 @@ if (orderForm) {
 
         const formData =
           new FormData(
-            this
+            orderForm
           );
 
 
         const orderType =
-          formData.get(
-            "orderType"
+          String(
+            formData.get(
+              "orderType"
+            ) || ""
           );
 
 
         let file = null;
 
 
-        const fileInput =
-          document.getElementById(
-            "file"
-          );
-
-
         if (
-          orderType === "file"
+          orderType ===
+          "file"
         ) {
+
+          const fileInput =
+            document.getElementById(
+              "file"
+            );
+
 
           if (
             !fileInput ||
@@ -869,7 +1032,7 @@ if (orderForm) {
         }
 
 
-        this.reset();
+        orderForm.reset();
 
         updateOrderType();
 
@@ -877,6 +1040,9 @@ if (orderForm) {
 
 
       } catch (error) {
+
+        console.error(error);
+
 
         if (result) {
 
@@ -888,8 +1054,6 @@ if (orderForm) {
 
         }
 
-        console.error(error);
-
       }
 
     }
@@ -898,9 +1062,9 @@ if (orderForm) {
 }
 
 
-/* =========================
-   TRACKING
-========================= */
+/* ================================
+   TRACK ORDER
+================================ */
 
 const trackForm =
   document.getElementById(
@@ -924,8 +1088,10 @@ if (trackForm) {
 
 
       if (result) {
+
         result.innerHTML =
           "<p>Looking up order...</p>";
+
       }
 
 
@@ -933,7 +1099,7 @@ if (trackForm) {
 
         const formData =
           new FormData(
-            this
+            trackForm
           );
 
 
@@ -1047,9 +1213,9 @@ if (trackForm) {
 }
 
 
-/* =========================
-   STAFF LOGIN
-========================= */
+/* ================================
+   STAFF FUNCTIONS
+================================ */
 
 async function staffLogin(
   password
@@ -1080,16 +1246,14 @@ async function staffLogin(
 }
 
 
-/* =========================
-   STAFF ORDERS
-========================= */
-
 async function getStaffOrders() {
 
   if (!staffToken) {
+
     throw new Error(
       "Please sign in."
     );
+
   }
 
 
@@ -1104,16 +1268,14 @@ async function getStaffOrders() {
 }
 
 
-/* =========================
-   STAFF INVENTORY
-========================= */
-
 async function getStaffInventory() {
 
   if (!staffToken) {
+
     throw new Error(
       "Please sign in."
     );
+
   }
 
 
@@ -1128,10 +1290,6 @@ async function getStaffInventory() {
 }
 
 
-/* =========================
-   UPDATE STAFF ORDER
-========================= */
-
 async function changeOrderStatus(
   orderNumber,
   status,
@@ -1139,9 +1297,11 @@ async function changeOrderStatus(
 ) {
 
   if (!staffToken) {
+
     throw new Error(
       "Please sign in."
     );
+
   }
 
 
@@ -1165,10 +1325,6 @@ async function changeOrderStatus(
 }
 
 
-/* =========================
-   UPDATE INVENTORY
-========================= */
-
 async function changeInventory(
   type,
   color,
@@ -1176,9 +1332,11 @@ async function changeInventory(
 ) {
 
   if (!staffToken) {
+
     throw new Error(
       "Please sign in."
     );
+
   }
 
 
@@ -1195,20 +1353,62 @@ async function changeInventory(
         color,
 
       inStock:
-        inStock
+        Boolean(
+          inStock
+        )
     }
   );
 
 }
 
 
-/* =========================
-   START
-========================= */
+/* ================================
+   PAGE START
+================================ */
 
 document.addEventListener(
   "DOMContentLoaded",
   function() {
+
+    const typeSelect =
+      document.getElementById(
+        "typeSelect"
+      );
+
+
+    if (typeSelect) {
+
+      typeSelect.addEventListener(
+        "change",
+        function() {
+
+          loadColors();
+
+        }
+      );
+
+    }
+
+
+    const orderType =
+      document.getElementById(
+        "orderType"
+      );
+
+
+    if (orderType) {
+
+      orderType.addEventListener(
+        "change",
+        function() {
+
+          updateOrderType();
+
+        }
+      );
+
+    }
+
 
     updateOrderType();
 
