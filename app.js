@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
+const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 let shopData = {
 gallery: [],
@@ -43,46 +43,60 @@ shopData = await api("catalog");
 
 ```
 if (!shopData.gallery || shopData.gallery.length === 0) {
-  gallery.innerHTML = `
-    <div class="empty">
-      <h3>No prints yet</h3>
-      <p>Add a print to the Gallery sheet in Google Sheets.</p>
-    </div>
-  `;
+  gallery.innerHTML =
+    '<div class="empty">' +
+    '<h3>No prints yet</h3>' +
+    '<p>Add a print to the Gallery sheet in Google Sheets.</p>' +
+    '</div>';
 } else {
-  gallery.innerHTML = shopData.gallery.map(print => {
+  gallery.innerHTML = shopData.gallery.map(function(print) {
     const image = print.imageUrl
-      ? `<img src="${escapeHTML(print.imageUrl)}" alt="${escapeHTML(print.name)}">`
-      : `<div class="no-image">3D PRINT</div>`;
+      ? '<img src="' +
+        escapeHTML(print.imageUrl) +
+        '" alt="' +
+        escapeHTML(print.name) +
+        '">'
+      : '<div class="no-image">3D PRINT</div>';
 
-    return `
-      <article class="print-card">
-        ${image}
-
-        <div class="print-info">
-          <h3>${escapeHTML(print.name)}</h3>
-
-          <p>${escapeHTML(print.description)}</p>
-
-          <button
-            class="button small-button"
-            onclick="selectPrint('${escapeHTML(print.id)}')"
-          >
-            Order this
-          </button>
-        </div>
-      </article>
-    `;
+    return (
+      '<article class="print-card">' +
+        image +
+        '<div class="print-info">' +
+          '<h3>' +
+            escapeHTML(print.name) +
+          '</h3>' +
+          '<p>' +
+            escapeHTML(print.description) +
+          '</p>' +
+          '<button class="button small-button" ' +
+            'data-print-id="' +
+            escapeHTML(print.id) +
+            '">' +
+            'Order this' +
+          '</button>' +
+        '</div>' +
+      '</article>'
+    );
   }).join("");
+
+  document
+    .querySelectorAll("[data-print-id]")
+    .forEach(function(button) {
+      button.addEventListener("click", function() {
+        selectPrint(button.dataset.printId);
+      });
+    });
 }
 
-const printSelect = document.getElementById("printSelect");
+const printSelect =
+  document.getElementById("printSelect");
 
 printSelect.innerHTML =
-  `<option value="">Choose a print...</option>`;
+  '<option value="">Choose a print...</option>';
 
-shopData.gallery.forEach(print => {
-  const option = document.createElement("option");
+shopData.gallery.forEach(function(print) {
+  const option =
+    document.createElement("option");
 
   option.value = print.id;
   option.textContent = print.name;
@@ -94,39 +108,51 @@ updateFilamentTypes();
 ```
 
 } catch (error) {
-gallery.innerHTML = `       <div class="error-box">         <h3>Shop unavailable</h3>         <p>${escapeHTML(error.message)}</p>       </div>
-    `;
+gallery.innerHTML =
+'<div class="error-box">' +
+'<h3>Shop unavailable</h3>' +
+'<p>' +
+escapeHTML(error.message) +
+'</p>' +
+'</div>';
 }
 }
 
 function selectPrint(id) {
-const select = document.getElementById("printSelect");
+const select =
+document.getElementById("printSelect");
 
 select.value = id;
 
-document.getElementById("order").scrollIntoView({
+document
+.getElementById("order")
+.scrollIntoView({
 behavior: "smooth"
 });
 }
 
 function updateFilamentTypes() {
-const typeSelect = document.getElementById("typeSelect");
+const typeSelect =
+document.getElementById("typeSelect");
 
 const types = [
 ...new Set(
 shopData.inventory
-.filter(item =>
-String(item.inStock).toLowerCase() !== "false"
-)
-.map(item => item.type)
+.filter(function(item) {
+return String(item.inStock).toLowerCase() !== "false";
+})
+.map(function(item) {
+return item.type;
+})
 )
 ];
 
 typeSelect.innerHTML =
-`<option value="">Choose a type...</option>`;
+'<option value="">Choose a type...</option>';
 
-types.forEach(type => {
-const option = document.createElement("option");
+types.forEach(function(type) {
+const option =
+document.createElement("option");
 
 ```
 option.value = type;
@@ -150,19 +176,24 @@ document.getElementById("colorSelect");
 const colors = [
 ...new Set(
 shopData.inventory
-.filter(item =>
+.filter(function(item) {
+return (
 item.type === type &&
 String(item.inStock).toLowerCase() !== "false"
-)
-.map(item => item.color)
+);
+})
+.map(function(item) {
+return item.color;
+})
 )
 ];
 
 colorSelect.innerHTML =
-`<option value="">Choose a color...</option>`;
+'<option value="">Choose a color...</option>';
 
-colors.forEach(color => {
-const option = document.createElement("option");
+colors.forEach(function(color) {
+const option =
+document.createElement("option");
 
 ```
 option.value = color;
@@ -175,11 +206,11 @@ colorSelect.appendChild(option);
 }
 
 function fileToBase64(file) {
-return new Promise((resolve, reject) => {
+return new Promise(function(resolve, reject) {
 const reader = new FileReader();
 
 ```
-reader.onload = () => {
+reader.onload = function() {
   const result = reader.result;
   resolve(result.split(",")[1]);
 };
@@ -195,17 +226,20 @@ reader.readAsDataURL(file);
 document
 .getElementById("orderForm")
 .addEventListener("submit", async function(event) {
-event.preventDefault();
 
 ```
+event.preventDefault();
+
 const result =
   document.getElementById("orderResult");
 
 result.className = "message";
-result.textContent = "Submitting your order...";
+result.textContent =
+  "Submitting your order...";
 
 try {
-  const formData = new FormData(this);
+  const formData =
+    new FormData(this);
 
   const fileInput =
     document.getElementById("file");
@@ -213,7 +247,8 @@ try {
   let file = null;
 
   if (fileInput.files.length > 0) {
-    const selectedFile = fileInput.files[0];
+    const selectedFile =
+      fileInput.files[0];
 
     if (selectedFile.size > 15 * 1024 * 1024) {
       throw new Error(
@@ -237,10 +272,14 @@ try {
     name: formData.get("name"),
     contact: formData.get("contact"),
     printId: formData.get("printId"),
-    quantity: Number(formData.get("quantity")),
-    filamentType: formData.get("filamentType"),
-    color: formData.get("color"),
-    notes: formData.get("notes"),
+    quantity:
+      Number(formData.get("quantity")),
+    filamentType:
+      formData.get("filamentType"),
+    color:
+      formData.get("color"),
+    notes:
+      formData.get("notes"),
     file: file
   };
 
@@ -254,24 +293,29 @@ try {
     );
   }
 
-  result.className = "success-message";
+  result.className =
+    "success-message";
 
-  result.innerHTML = `
-    <strong>Order submitted!</strong>
-    <br><br>
-    Your order number is:
-    <strong>${escapeHTML(response.orderNumber)}</strong>
-    <br><br>
-    Save this number so you can track your order.
-  `;
+  result.innerHTML =
+    "<strong>Order submitted!</strong>" +
+    "<br><br>" +
+    "Your order number is: " +
+    "<strong>" +
+    escapeHTML(response.orderNumber) +
+    "</strong>" +
+    "<br><br>" +
+    "Save this number so you can track your order.";
 
   this.reset();
 
   updateFilamentTypes();
 
 } catch (error) {
-  result.className = "error-message";
-  result.textContent = error.message;
+  result.className =
+    "error-message";
+
+  result.textContent =
+    error.message;
 }
 ```
 
@@ -280,9 +324,10 @@ try {
 document
 .getElementById("trackForm")
 .addEventListener("submit", async function(event) {
-event.preventDefault();
 
 ```
+event.preventDefault();
+
 const result =
   document.getElementById("trackResult");
 
@@ -294,83 +339,91 @@ try {
     new FormData(this).get("orderNumber");
 
   const response =
-    await api("track", { orderNumber });
+    await api(
+      "track",
+      {
+        orderNumber: orderNumber
+      }
+    );
 
   if (!response.ok) {
     throw new Error(
-      response.error || "Order not found."
+      response.error ||
+      "Order not found."
     );
   }
 
-  const order = response.order;
+  const order =
+    response.order;
 
-  result.innerHTML = `
-    <div class="tracking-card">
+  result.innerHTML =
+    '<div class="tracking-card">' +
 
-      <div class="tracking-number">
-        <span>Order</span>
-        <strong>
-          ${escapeHTML(order.orderNumber)}
-        </strong>
-      </div>
+      '<div class="tracking-number">' +
+        '<span>Order</span>' +
+        '<strong>' +
+          escapeHTML(order.orderNumber) +
+        '</strong>' +
+      '</div>' +
 
-      <div class="tracking-status">
-        <span>Status</span>
-        <strong>
-          ${escapeHTML(order.status)}
-        </strong>
-      </div>
+      '<div class="tracking-status">' +
+        '<span>Status</span>' +
+        '<strong>' +
+          escapeHTML(order.status) +
+        '</strong>' +
+      '</div>' +
 
-      <div class="tracking-row">
-        <span>Print</span>
-        <strong>
-          ${escapeHTML(order.printName)}
-        </strong>
-      </div>
+      '<div class="tracking-row">' +
+        '<span>Print</span>' +
+        '<strong>' +
+          escapeHTML(order.printName) +
+        '</strong>' +
+      '</div>' +
 
-      <div class="tracking-row">
-        <span>Quantity</span>
-        <strong>
-          ${escapeHTML(order.quantity)}
-        </strong>
-      </div>
+      '<div class="tracking-row">' +
+        '<span>Quantity</span>' +
+        '<strong>' +
+          escapeHTML(order.quantity) +
+        '</strong>' +
+      '</div>' +
 
-      <div class="tracking-row">
-        <span>Filament</span>
-        <strong>
-          ${escapeHTML(order.filamentType)}
-          /
-          ${escapeHTML(order.color)}
-        </strong>
-      </div>
+      '<div class="tracking-row">' +
+        '<span>Filament</span>' +
+        '<strong>' +
+          escapeHTML(order.filamentType) +
+          " / " +
+          escapeHTML(order.color) +
+        '</strong>' +
+      '</div>' +
 
-      <div class="tracking-row">
-        <span>Estimated completion</span>
-        <strong>
-          ${
+      '<div class="tracking-row">' +
+        '<span>Estimated completion</span>' +
+        '<strong>' +
+          (
             order.eta
               ? escapeHTML(order.eta)
               : "Not set yet"
-          }
-        </strong>
-      </div>
+          ) +
+        '</strong>' +
+      '</div>' +
 
-    </div>
-  `;
+    '</div>';
 
 } catch (error) {
-  result.innerHTML = `
-    <div class="error-box">
-      ${escapeHTML(error.message)}
-    </div>
-  `;
+  result.innerHTML =
+    '<div class="error-box">' +
+    escapeHTML(error.message) +
+    '</div>';
 }
-```
+
 
 });
 
 document
 .getElementById("typeSelect")
-.addEventListener("change", updateColors);
+.addEventListener(
+"change",
+updateColors
+);
 
 loadShop();
