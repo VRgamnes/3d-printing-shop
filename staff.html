@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Staff Panel • Friends & Family Prints</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="style.css">
+  <title>Staff - Friends & Family Prints</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css">
+
 </head>
+
 
 <body>
 
@@ -16,246 +24,199 @@
 
   <div class="container nav">
 
+    <a
+      class="logo"
+      href="index.html">
 
-<a href="index.html" class="logo">
-  Friends & Family Prints
-</a>
+      Friends & Family Prints
 
-<nav>
-  <a href="index.html">Customer Site</a>
-</nav>
+    </a>
 
+    <nav>
+
+      <a href="index.html">
+        Customer Site
+      </a>
+
+    </nav>
 
   </div>
 
 </header>
 
+
 <main>
 
 <section class="section">
 
-<div class="container">
+  <div class="container">
 
-<!-- LOGIN -->
+    <div
+      id="loginScreen"
+      class="staff-login">
 
-<div id="loginSection" class="form-card">
+      <div class="section-heading">
 
-  <div class="section-title">
-    <span>STAFF ONLY</span>
-    <h2>Staff login</h2>
-  </div>
+        <p class="eyebrow">
+          STAFF
+        </p>
 
-  <form id="loginForm">
+        <h1>
+          Staff Login
+        </h1>
 
-
-<div class="form-group">
-
-  <label>Password</label>
-
-  <input
-    id="password"
-    type="password"
-    required
-    placeholder="Staff password"
-  >
-
-</div>
-
-<button class="button">
-  Sign in
-</button>
-
-<div id="loginResult"></div>
+      </div>
 
 
-  </form>
+      <form
+        id="loginForm"
+        class="form">
 
-</div>
+        <label>
 
-<!-- STAFF PANEL -->
+          Staff Password
 
-<div id="staffPanel" hidden>
+          <input
+            id="password"
+            type="password"
+            required
+            placeholder="Password">
 
-<div class="section-title">
-
-<span>CONTROL CENTER</span>
-
-  <h2>Staff Dashboard</h2>
-
-</div>
-
-<!-- STATS -->
-
-<div
-  id="stats"
-  class="stats"
-></div>
-
-<!-- ORDERS -->
-
-<section class="dashboard-card">
-
-  <div class="dashboard-header">
+        </label>
 
 
-<div>
+        <button
+          type="submit"
+          class="button">
 
-  <span class="small-label">
-    CUSTOMER ORDERS
-  </span>
+          Login
 
-  <h2>Orders</h2>
-
-</div>
-
-<button
-  id="refreshOrders"
-  class="button secondary"
->
-  Refresh
-</button>
+        </button>
 
 
-  </div>
+        <div
+          id="loginResult"
+          class="message">
+        </div>
 
-  <div id="ordersList">
+      </form>
 
-
-<div class="loading">
-  Loading orders...
-</div>
-
-
-  </div>
-
-</section>
-
-<!-- INVENTORY -->
-
-<section class="dashboard-card">
-
-  <div class="dashboard-header">
+    </div>
 
 
-<div>
+    <div
+      id="dashboard"
+      style="display:none">
 
-  <span class="small-label">
-    FILAMENT
-  </span>
+      <div class="section-heading">
 
-  <h2>Inventory</h2>
+        <p class="eyebrow">
+          STAFF PANEL
+        </p>
 
-</div>
+        <h1>
+          Dashboard
+        </h1>
 
-
-  </div>
-
-  <div class="inventory-add">
-
-
-<div class="form-group">
-
-  <label>Filament type</label>
-
-  <input
-    id="newFilamentType"
-    placeholder="PLA"
-  >
-
-</div>
+      </div>
 
 
-<div class="form-group">
+      <div class="staff-actions">
 
-  <label>Color</label>
+        <button
+          id="refreshButton"
+          class="button">
 
-  <input
-    id="newFilamentColor"
-    placeholder="Black"
-  >
+          Refresh
 
-</div>
+        </button>
 
 
-<button
-  id="addInventory"
-  class="button"
->
-  Add filament
-</button>
+        <button
+          id="logoutButton"
+          class="button secondary-button">
 
+          Logout
+
+        </button>
+
+      </div>
+
+
+      <section class="staff-section">
+
+        <h2>
+          Orders
+        </h2>
+
+        <div
+          id="orders"
+          class="orders-list">
+
+          Loading orders...
+
+        </div>
+
+      </section>
+
+
+      <section class="staff-section">
+
+        <h2>
+          Inventory
+        </h2>
+
+        <div
+          id="inventory"
+          class="inventory-list">
+
+          Loading inventory...
+
+        </div>
+
+      </section>
+
+
+      <section class="staff-section">
+
+        <h2>
+          Gallery
+        </h2>
+
+        <div
+          id="staffGallery"
+          class="inventory-list">
+
+          Loading gallery...
+
+        </div>
+
+      </section>
+
+    </div>
 
   </div>
-
-  <div id="inventoryList"></div>
-
-</section>
-
-<!-- GALLERY -->
-
-<section class="dashboard-card">
-
-  <div class="dashboard-header">
-
-
-<div>
-
-  <span class="small-label">
-    PRODUCTS
-  </span>
-
-  <h2>Gallery</h2>
-
-</div>
-
-
-  </div>
-
-  <p class="help">
-
-
-Gallery items are managed from the
-<strong>Gallery</strong> sheet in Google Sheets.
-
-Add a row there and it will appear on the
-customer website.
-
-
-  </p>
-
-</section>
-
-</div>
-
-</div>
 
 </section>
 
 </main>
 
-<footer>
 
-<div class="container">
+<footer class="footer">
 
-  <div class="footer-content">
+  <div class="container">
 
-
-<strong>
-  Friends & Family Prints
-</strong>
-
-<span>
-  Staff Panel
-</span>
-
+    <p>
+      Friends & Family 3D Prints
+    </p>
 
   </div>
 
-</div>
-
 </footer>
+
 
 <script src="staff.js"></script>
 
 </body>
+
 </html>
