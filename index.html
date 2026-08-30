@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friends & Family Prints</title>
+  <title>Friends & Family 3D Prints</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,277 +11,283 @@
 
 <header class="site-header">
   <div class="container nav">
-    <a href="index.html" class="logo">Friends & Family Prints</a>
+    <a class="logo" href="#home">Friends & Family Prints</a>
 
-<nav>
-  <a href="#gallery">Gallery</a>
-  <a href="#order">Order</a>
-  <a href="#track">Track</a>
-  <a href="staff.html">Staff</a>
-</nav>
-
-
+    <nav>
+      <a href="#gallery">Gallery</a>
+      <a href="#order">Order</a>
+      <a href="#track">Track Order</a>
+      <a href="staff.html">Staff</a>
+    </nav>
   </div>
 </header>
 
 <main>
 
-<section class="hero">
+<section id="home" class="hero">
   <div class="container hero-content">
-    <div>
-      <span class="eyebrow">3D PRINTING</span>
+    <p class="eyebrow">CUSTOM 3D PRINTING</p>
 
+    <h1>Turn your ideas<br>into real prints.</h1>
 
-  <h1>
-    Your idea.<br>
-    Printed.
-  </h1>
+    <p class="hero-text">
+      Choose something from our gallery or upload your own
+      3D model and we'll print it for you.
+    </p>
 
-  <p>
-    Choose a print, pick your filament and color,
-    and send your order directly to us.
-  </p>
-
-  <a href="#gallery" class="button">
-    Browse prints
-  </a>
-</div>
-
-
+    <a class="button" href="#order">Start an Order</a>
   </div>
 </section>
+
 
 <section id="gallery" class="section">
   <div class="container">
 
+    <div class="section-heading">
+      <p class="eyebrow">OUR PRINTS</p>
+      <h2>Gallery</h2>
+      <p>Browse the prints currently available.</p>
+    </div>
 
-<div class="section-title">
-  <span>WHAT WE PRINT</span>
-  <h2>Gallery</h2>
-</div>
-
-<div id="galleryGrid" class="gallery-grid">
-  <div class="loading">
-    Loading prints...
-  </div>
-</div>
-
+    <div id="galleryGrid" class="gallery-grid">
+      <div class="loading">Loading prints...</div>
+    </div>
 
   </div>
 </section>
 
-<section id="order" class="section">
 
-  <div class="container">
+<section id="order" class="section section-alt">
+  <div class="container narrow">
 
+    <div class="section-heading">
+      <p class="eyebrow">ORDER</p>
+      <h2>Create an Order</h2>
+      <p>Choose a gallery print or upload your own model.</p>
+    </div>
 
-<div class="section-title">
-  <span>PLACE AN ORDER</span>
-  <h2>Get something printed</h2>
-</div>
+    <form id="orderForm" class="form">
 
-<div class="form-card">
-
-  <form id="orderForm">
-
-    <div class="form-row">
-
-      <div class="form-group">
-        <label>Your name</label>
+      <label>
+        Your Name
         <input
+          type="text"
           name="name"
-          type="text"
           required
-          placeholder="Your name"
-        >
-      </div>
+          placeholder="Your name">
+      </label>
 
-      <div class="form-group">
-        <label>Contact information</label>
+
+      <label>
+        Contact Information
         <input
+          type="text"
           name="contact"
-          type="text"
           required
-          placeholder="Phone, text, etc."
-        >
-      </div>
-
-    </div>
+          placeholder="Phone or email">
+      </label>
 
 
-    <div class="form-group">
-      <label>What would you like printed?</label>
-
-      <select
-        name="printId"
-        id="printSelect"
-        required
-      >
-        <option value="">Choose a print...</option>
-      </select>
-    </div>
-
-
-    <div class="form-row">
-
-      <div class="form-group">
-
-        <label>Quantity</label>
-
-        <input
-          name="quantity"
-          type="number"
-          min="1"
-          value="1"
-          required
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>Filament type</label>
+      <label>
+        What would you like printed?
 
         <select
-          name="filamentType"
-          id="typeSelect"
-          required
-        >
-          <option value="">Choose a type...</option>
+          id="orderType"
+          name="orderType"
+          required>
+
+          <option value="">
+            Choose an option...
+          </option>
+
+          <option value="gallery">
+            A print from our gallery
+          </option>
+
+          <option value="custom">
+            My own 3D model
+          </option>
+
         </select>
+      </label>
+
+
+      <div id="galleryChoice" style="display:none">
+
+        <label>
+          Choose a print
+
+          <select
+            id="printSelect"
+            name="printId">
+
+            <option value="">
+              Choose a print...
+            </option>
+
+          </select>
+
+        </label>
 
       </div>
 
-    </div>
+
+      <div id="customFileChoice" style="display:none">
+
+        <label>
+          Upload your 3D model
+
+          <input
+            id="file"
+            type="file"
+            name="file"
+            accept=".stl,.3mf,.obj,.step,.stp">
+
+          <small>
+            STL, 3MF, OBJ, STEP and STP files are supported.
+          </small>
+
+        </label>
+
+      </div>
 
 
-    <div class="form-group">
+      <label>
+        Quantity
 
-      <label>Color</label>
+        <input
+          type="number"
+          name="quantity"
+          min="1"
+          value="1"
+          required>
 
-      <select
-        name="color"
-        id="colorSelect"
-        required
-      >
-        <option value="">Choose a color...</option>
-      </select>
-
-    </div>
+      </label>
 
 
-    <div class="form-group">
+      <label>
+        Filament Type
 
-      <label>Upload your STL / 3MF file</label>
+        <select
+          id="typeSelect"
+          name="filamentType"
+          required>
 
-      <input
-        id="file"
-        type="file"
-        accept=".stl,.3mf"
-      >
+          <option value="">
+            Loading filament...
+          </option>
 
-      <p class="help">
-        Optional if you're ordering a print from the gallery.
-        Maximum file size: 15 MB.
-      </p>
+        </select>
 
-    </div>
-
-
-    <div class="form-group">
-
-      <label>Notes</label>
-
-      <textarea
-        name="notes"
-        rows="5"
-        placeholder="Anything we should know about your order?"
-      ></textarea>
-
-    </div>
+      </label>
 
 
-    <button
-      type="submit"
-      class="button"
-    >
-      Submit order
-    </button>
+      <label>
+        Color
 
-    <div id="orderResult"></div>
+        <select
+          id="colorSelect"
+          name="color"
+          required>
 
-  </form>
+          <option value="">
+            Choose a filament type first
+          </option>
 
-</div>
+        </select>
 
+      </label>
+
+
+      <label>
+        Notes
+
+        <textarea
+          name="notes"
+          rows="5"
+          placeholder="Anything we should know about your order?"></textarea>
+
+      </label>
+
+
+      <button
+        type="submit"
+        class="button">
+
+        Submit Order
+
+      </button>
+
+
+      <div
+        id="orderResult"
+        class="message">
+      </div>
+
+    </form>
 
   </div>
-
 </section>
 
+
 <section id="track" class="section">
+  <div class="container narrow">
 
-  <div class="container">
-
-
-<div class="section-title">
-  <span>ORDER TRACKING</span>
-  <h2>Track your order</h2>
-</div>
-
-
-<div class="form-card">
-
-  <form id="trackForm">
-
-    <div class="form-group">
-
-      <label>Order number</label>
-
-      <input
-        name="orderNumber"
-        required
-        placeholder="Example: FF-1001"
-      >
-
+    <div class="section-heading">
+      <p class="eyebrow">ORDER TRACKING</p>
+      <h2>Track Your Order</h2>
+      <p>Enter your order number to see the latest status.</p>
     </div>
 
-    <button class="button">
-      Track order
-    </button>
 
-  </form>
+    <form id="trackForm" class="form">
+
+      <label>
+        Order Number
+
+        <input
+          type="text"
+          name="orderNumber"
+          required
+          placeholder="Example: FF-1001">
+
+      </label>
 
 
-  <div id="trackResult"></div>
+      <button
+        type="submit"
+        class="button">
 
-</div>
+        Track Order
 
+      </button>
+
+    </form>
+
+
+    <div
+      id="trackResult"
+      class="track-result">
+    </div>
 
   </div>
-
 </section>
 
 </main>
 
-<footer>
+
+<footer class="footer">
 
   <div class="container">
 
+    <p>Friends & Family 3D Prints</p>
 
-<div class="footer-content">
-
-  <strong>Friends & Family Prints</strong>
-
-  <span>3D printing for friends & family</span>
-
-</div>
-
+    <p>Made for friends and family.</p>
 
   </div>
 
 </footer>
+
 
 <script src="app.js"></script>
 
