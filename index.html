@@ -1,295 +1,1740 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friends & Family 3D Prints</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Printing Shop</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7fa;
+  color: #17202a;
+}
+
+header {
+  background: #111827;
+  color: white;
+  padding: 22px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+nav {
+  display: flex;
+  gap: 18px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+nav a:hover {
+  opacity: .75;
+}
+
+.hero {
+  background: linear-gradient(135deg, #111827, #374151);
+  color: white;
+  padding: 85px 20px;
+}
+
+.hero-inner {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.hero h1 {
+  font-size: clamp(38px, 7vw, 68px);
+  margin: 0 0 18px;
+}
+
+.hero p {
+  max-width: 650px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: #d1d5db;
+}
+
+.button {
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 19px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #1d4ed8;
+}
+
+.button.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.section {
+  max-width: 1100px;
+  margin: auto;
+  padding: 65px 20px;
+}
+
+.section-title {
+  font-size: 34px;
+  margin: 0 0 10px;
+}
+
+.section-subtitle {
+  color: #667085;
+  margin-bottom: 30px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: 22px;
+}
+
+.print-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,.07);
+  border: 1px solid #e5e7eb;
+}
+
+.print-image {
+  width: 100%;
+  height: 220px;
+  background: #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.print-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.print-info {
+  padding: 20px;
+}
+
+.print-info h3 {
+  margin: 0 0 8px;
+  font-size: 21px;
+}
+
+.print-info p {
+  color: #667085;
+  line-height: 1.5;
+  min-height: 45px;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 5px 25px rgba(0,0,0,.07);
+  border: 1px solid #e5e7eb;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+  background: white;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+
+.choice-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.choice {
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 12px;
+  padding: 18px 10px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 700;
+}
+
+.choice:hover {
+  border-color: #93c5fd;
+}
+
+.choice.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.custom-section {
+  display: none;
+}
+
+.info-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
+
+.success-message {
+  background: #ecfdf3;
+  border: 1px solid #86efac;
+  color: #166534;
+  padding: 18px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 18px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.tracking-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 22px;
+  margin-top: 20px;
+}
+
+.tracking-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.tracking-row:last-child {
+  border-bottom: 0;
+}
+
+.tracking-row span {
+  color: #667085;
+}
+
+.order-number {
+  font-size: 28px;
+}
+
+.empty {
+  background: white;
+  padding: 40px;
+  text-align: center;
+  border-radius: 15px;
+  border: 1px solid #e5e7eb;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #667085;
+}
+
+footer {
+  background: #111827;
+  color: #d1d5db;
+  text-align: center;
+  padding: 35px 20px;
+  margin-top: 40px;
+}
+
+@media (max-width: 750px) {
+  .header-inner {
+    flex-direction: column;
+  }
+
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full {
+    grid-column: auto;
+  }
+
+  .choice-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+
 </head>
 
 <body>
 
-<header class="site-header">
-  <div class="container nav">
-    <a class="logo" href="#home">Friends & Family Prints</a>
+<header>
+  <div class="header-inner">
+    <div class="logo">3D Printing Shop</div>
 
-    <nav>
-      <a href="#gallery">Gallery</a>
-      <a href="#order">Order</a>
-      <a href="#track">Track Order</a>
-      <a href="staff.html">Staff</a>
-    </nav>
+```
+<nav>
+  <a href="#gallery">Gallery</a>
+  <a href="#order">Order</a>
+  <a href="#track">Track Order</a>
+</nav>
+```
+
   </div>
 </header>
 
-<main>
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Custom 3D Printing</h1>
 
-<section id="home" class="hero">
-  <div class="container hero-content">
-    <p class="eyebrow">CUSTOM 3D PRINTING</p>
+```
+<p>
+  Choose something from the gallery or send us your own
+  3D-printing idea, file, or link.
+</p>
 
-    <h1>Turn your ideas<br>into real prints.</h1>
-
-    <p class="hero-text">
-      Choose something from our gallery or upload your own
-      3D model and we'll print it for you.
-    </p>
-
-    <a class="button" href="#order">Start an Order</a>
-  </div>
-</section>
-
-
-<section id="gallery" class="section">
-  <div class="container">
-
-    <div class="section-heading">
-      <p class="eyebrow">OUR PRINTS</p>
-      <h2>Gallery</h2>
-      <p>Browse the prints currently available.</p>
-    </div>
-
-    <div id="galleryGrid" class="gallery-grid">
-      <div class="loading">Loading prints...</div>
-    </div>
+<a href="#order">
+  <button class="button">Place an Order</button>
+</a>
+```
 
   </div>
 </section>
 
+<section class="section" id="gallery">
 
-<section id="order" class="section section-alt">
-  <div class="container narrow">
+  <h2 class="section-title">Our Prints</h2>
 
-    <div class="section-heading">
-      <p class="eyebrow">ORDER</p>
-      <h2>Create an Order</h2>
-      <p>Choose a gallery print or upload your own model.</p>
+  <p class="section-subtitle">
+    Choose something from our gallery to order.
+  </p>
+
+  <div id="galleryGrid" class="gallery">
+    <div class="loading">Loading prints...</div>
+  </div>
+
+</section>
+
+<section class="section" id="order">
+
+  <h2 class="section-title">Place an Order</h2>
+
+  <p class="section-subtitle">
+    Tell us what you would like printed.
+  </p>
+
+  <div class="card">
+
+```
+<form id="orderForm">
+
+  <div class="form-group">
+    <label>What would you like printed?</label>
+
+    <div class="choice-buttons">
+
+      <button
+        type="button"
+        class="choice active"
+        data-type="gallery">
+        🖼️ Gallery
+      </button>
+
+      <button
+        type="button"
+        class="choice"
+        data-type="file">
+        📁 File
+      </button>
+
+      <button
+        type="button"
+        class="choice"
+        data-type="idea">
+        💡 Idea
+      </button>
+
+      <button
+        type="button"
+        class="choice"
+        data-type="link">
+        🔗 Link
+      </button>
+
     </div>
 
-    <form id="orderForm" class="form">
+    <input
+      type="hidden"
+      id="orderType"
+      name="orderType"
+      value="gallery">
 
-      <label>
+  </div>
+
+
+  <!-- GALLERY -->
+
+  <div
+    id="galleryChoice"
+    class="custom-section"
+    style="display:block;">
+
+    <div class="form-group">
+      <label for="printSelect">
+        Choose a print
+      </label>
+
+      <select id="printSelect" name="printId">
+        <option value="">
+          Loading prints...
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+
+  <!-- FILE -->
+
+  <div
+    id="fileChoice"
+    class="custom-section">
+
+    <div class="info-box">
+      Upload your 3D model file.
+      STL, 3MF, OBJ and similar files are supported.
+    </div>
+
+    <div class="form-group">
+
+      <label for="file">
+        3D Model File
+      </label>
+
+      <input
+        type="file"
+        id="file"
+        name="file"
+        accept=".stl,.3mf,.obj,.step,.stp">
+
+    </div>
+
+  </div>
+
+
+  <!-- IDEA -->
+
+  <div
+    id="ideaChoice"
+    class="custom-section">
+
+    <div class="info-box">
+      Don't have a 3D model?
+      Tell us what you want and we can look at the idea.
+    </div>
+
+    <div class="form-group">
+
+      <label for="idea">
+        Describe your idea
+      </label>
+
+      <textarea
+        id="idea"
+        name="idea"
+        placeholder="Example: I want a small phone stand shaped like a race car..."></textarea>
+
+    </div>
+
+  </div>
+
+
+  <!-- LINK -->
+
+  <div
+    id="linkChoice"
+    class="custom-section">
+
+    <div class="info-box">
+      Have a model online?
+      Paste the link below.
+    </div>
+
+    <div class="form-group">
+
+      <label for="modelLink">
+        Model Link
+      </label>
+
+      <input
+        type="url"
+        id="modelLink"
+        name="modelLink"
+        placeholder="https://...">
+
+    </div>
+
+  </div>
+
+
+  <div class="form-grid">
+
+    <div class="form-group">
+
+      <label for="name">
         Your Name
-        <input
-          type="text"
-          name="name"
-          required
-          placeholder="Your name">
       </label>
 
+      <input
+        type="text"
+        id="name"
+        name="name"
+        required
+        placeholder="Your name">
 
-      <label>
+    </div>
+
+
+    <div class="form-group">
+
+      <label for="contact">
         Contact Information
-        <input
-          type="text"
-          name="contact"
-          required
-          placeholder="Phone or email">
       </label>
 
+      <input
+        type="text"
+        id="contact"
+        name="contact"
+        required
+        placeholder="Email, phone, etc.">
 
-      <label>
-        What would you like printed?
-
-        <select
-          id="orderType"
-          name="orderType"
-          required>
-
-          <option value="">
-            Choose an option...
-          </option>
-
-          <option value="gallery">
-            A print from our gallery
-          </option>
-
-          <option value="custom">
-            My own 3D model
-          </option>
-
-        </select>
-      </label>
+    </div>
 
 
-      <div id="galleryChoice" style="display:none">
+    <div class="form-group">
 
-        <label>
-          Choose a print
-
-          <select
-            id="printSelect"
-            name="printId">
-
-            <option value="">
-              Choose a print...
-            </option>
-
-          </select>
-
-        </label>
-
-      </div>
-
-
-      <div id="customFileChoice" style="display:none">
-
-        <label>
-          Upload your 3D model
-
-          <input
-            id="file"
-            type="file"
-            name="file"
-            accept=".stl,.3mf,.obj,.step,.stp">
-
-          <small>
-            STL, 3MF, OBJ, STEP and STP files are supported.
-          </small>
-
-        </label>
-
-      </div>
-
-
-      <label>
+      <label for="quantity">
         Quantity
-
-        <input
-          type="number"
-          name="quantity"
-          min="1"
-          value="1"
-          required>
-
       </label>
 
+      <input
+        type="number"
+        id="quantity"
+        name="quantity"
+        min="1"
+        value="1"
+        required>
 
-      <label>
+    </div>
+
+
+    <div class="form-group">
+
+      <label for="typeSelect">
         Filament Type
-
-        <select
-          id="typeSelect"
-          name="filamentType"
-          required>
-
-          <option value="">
-            Loading filament...
-          </option>
-
-        </select>
-
       </label>
 
+      <select
+        id="typeSelect"
+        name="filamentType"
+        required>
 
-      <label>
-        Color
+        <option value="">
+          Loading filament...
+        </option>
 
-        <select
-          id="colorSelect"
-          name="color"
-          required>
+      </select>
 
-          <option value="">
-            Choose a filament type first
-          </option>
-
-        </select>
-
-      </label>
-
-
-      <label>
-        Notes
-
-        <textarea
-          name="notes"
-          rows="5"
-          placeholder="Anything we should know about your order?"></textarea>
-
-      </label>
-
-
-      <button
-        type="submit"
-        class="button">
-
-        Submit Order
-
-      </button>
-
-
-      <div
-        id="orderResult"
-        class="message">
-      </div>
-
-    </form>
-
-  </div>
-</section>
-
-
-<section id="track" class="section">
-  <div class="container narrow">
-
-    <div class="section-heading">
-      <p class="eyebrow">ORDER TRACKING</p>
-      <h2>Track Your Order</h2>
-      <p>Enter your order number to see the latest status.</p>
     </div>
 
 
-    <form id="trackForm" class="form">
+    <div class="form-group">
 
-      <label>
-        Order Number
-
-        <input
-          type="text"
-          name="orderNumber"
-          required
-          placeholder="Example: FF-1001">
-
+      <label for="colorSelect">
+        Filament Color
       </label>
 
+      <select
+        id="colorSelect"
+        name="color"
+        required>
 
-      <button
-        type="submit"
-        class="button">
+        <option value="">
+          Select filament type first
+        </option>
 
-        Track Order
+      </select>
 
-      </button>
-
-    </form>
+    </div>
 
 
-    <div
-      id="trackResult"
-      class="track-result">
+    <div class="form-group">
+
+      <label for="notes">
+        Additional Notes
+      </label>
+
+      <textarea
+        id="notes"
+        name="notes"
+        placeholder="Anything else we should know?"></textarea>
+
     </div>
 
   </div>
-</section>
-
-</main>
 
 
-<footer class="footer">
+  <button
+    type="submit"
+    class="button">
+    Submit Order
+  </button>
 
-  <div class="container">
+  <div id="orderResult"></div>
 
-    <p>Friends & Family 3D Prints</p>
-
-    <p>Made for friends and family.</p>
+</form>
+```
 
   </div>
 
+</section>
+
+<section class="section" id="track">
+
+  <h2 class="section-title">Track Your Order</h2>
+
+  <p class="section-subtitle">
+    Enter the order number you received after ordering.
+  </p>
+
+  <div class="card">
+
+```
+<form id="trackForm">
+
+  <div class="form-group">
+
+    <label for="orderNumber">
+      Order Number
+    </label>
+
+    <input
+      type="text"
+      id="orderNumber"
+      name="orderNumber"
+      placeholder="FF-1001"
+      required>
+
+  </div>
+
+  <button
+    type="submit"
+    class="button">
+    Track Order
+  </button>
+
+</form>
+
+<div id="trackResult"></div>
+```
+
+  </div>
+
+</section>
+
+<footer>
+  3D Printing Shop
 </footer>
 
+<script>
 
-<script src="app.js"></script>
+/*
+==================================================
+GOOGLE APPS SCRIPT
+==================================================
+*/
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
+
+
+let shopData = {
+  gallery: [],
+  inventory: []
+};
+
+
+/*
+==================================================
+API
+==================================================
+*/
+
+async function api(action, data = {}) {
+
+  const url =
+    API_URL +
+    "?action=" +
+    encodeURIComponent(action) +
+    "&data=" +
+    encodeURIComponent(
+      JSON.stringify(data)
+    );
+
+  const response =
+    await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      "Could not connect to the shop server."
+    );
+  }
+
+  const result =
+    await response.json();
+
+  return result;
+}
+
+
+/*
+==================================================
+SECURITY
+==================================================
+*/
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/*
+==================================================
+LOAD SHOP
+==================================================
+*/
+
+async function loadShop() {
+
+  const gallery =
+    document.getElementById(
+      "galleryGrid"
+    );
+
+  try {
+
+    const response =
+      await api("catalog");
+
+    if (
+      !response ||
+      response.ok === false
+    ) {
+
+      throw new Error(
+        response?.error ||
+        "Could not load shop data."
+      );
+
+    }
+
+    shopData = {
+
+      gallery:
+        Array.isArray(response.gallery)
+          ? response.gallery
+          : [],
+
+      inventory:
+        Array.isArray(response.inventory)
+          ? response.inventory
+          : []
+
+    };
+
+    loadGallery();
+    loadPrints();
+    loadFilamentTypes();
+
+  } catch (error) {
+
+    console.error(error);
+
+    gallery.innerHTML =
+      "<div class='error-message'>" +
+      escapeHTML(error.message) +
+      "</div>";
+
+  }
+
+}
+
+
+/*
+==================================================
+GALLERY
+==================================================
+*/
+
+function loadGallery() {
+
+  const gallery =
+    document.getElementById(
+      "galleryGrid"
+    );
+
+  const prints =
+    shopData.gallery || [];
+
+
+  if (prints.length === 0) {
+
+    gallery.innerHTML =
+      "<div class='empty'>" +
+      "<h3>No prints yet</h3>" +
+      "<p>Add a print to the Gallery sheet.</p>" +
+      "</div>";
+
+    return;
+
+  }
+
+
+  gallery.innerHTML =
+    prints.map(function(print) {
+
+      let imageHTML;
+
+      if (print.imageUrl) {
+
+        imageHTML =
+          "<div class='print-image'>" +
+          "<img src='" +
+          escapeHTML(print.imageUrl) +
+          "' alt='" +
+          escapeHTML(print.name) +
+          "'>" +
+          "</div>";
+
+      } else {
+
+        imageHTML =
+          "<div class='print-image'>" +
+          "<div class='no-image'>3D PRINT</div>" +
+          "</div>";
+
+      }
+
+
+      return (
+
+        "<article class='print-card'>" +
+
+          imageHTML +
+
+          "<div class='print-info'>" +
+
+            "<h3>" +
+            escapeHTML(print.name) +
+            "</h3>" +
+
+            "<p>" +
+            escapeHTML(
+              print.description || ""
+            ) +
+            "</p>" +
+
+            "<button " +
+            "type='button' " +
+            "class='button order-print' " +
+            "data-id='" +
+            escapeHTML(print.id) +
+            "'>" +
+            "Order this" +
+            "</button>" +
+
+          "</div>" +
+
+        "</article>"
+
+      );
+
+    }).join("");
+
+
+  document
+    .querySelectorAll(".order-print")
+    .forEach(function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          setOrderType("gallery");
+
+          const select =
+            document.getElementById(
+              "printSelect"
+            );
+
+          select.value =
+            button.dataset.id;
+
+          document
+            .getElementById("order")
+            .scrollIntoView({
+              behavior: "smooth"
+            });
+
+        }
+      );
+
+    });
+
+}
+
+
+/*
+==================================================
+PRINT SELECT
+==================================================
+*/
+
+function loadPrints() {
+
+  const select =
+    document.getElementById(
+      "printSelect"
+    );
+
+  select.innerHTML =
+    "<option value=''>" +
+    "Choose a print..." +
+    "</option>";
+
+
+  shopData.gallery.forEach(
+    function(print) {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        print.id;
+
+      option.textContent =
+        print.name;
+
+      select.appendChild(option);
+
+    }
+  );
+
+}
+
+
+/*
+==================================================
+FILAMENT TYPES
+==================================================
+*/
+
+function loadFilamentTypes() {
+
+  const select =
+    document.getElementById(
+      "typeSelect"
+    );
+
+  const types = [];
+
+
+  shopData.inventory.forEach(
+    function(item) {
+
+      const available =
+        String(item.inStock)
+          .toLowerCase() !== "false";
+
+
+      if (
+        available &&
+        item.type &&
+        !types.includes(item.type)
+      ) {
+
+        types.push(item.type);
+
+      }
+
+    }
+  );
+
+
+  select.innerHTML =
+    "<option value=''>" +
+    "Choose a type..." +
+    "</option>";
+
+
+  types.forEach(
+    function(type) {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        type;
+
+      option.textContent =
+        type;
+
+      select.appendChild(option);
+
+    }
+  );
+
+
+  loadColors();
+
+}
+
+
+/*
+==================================================
+COLORS
+==================================================
+*/
+
+function loadColors() {
+
+  const type =
+    document.getElementById(
+      "typeSelect"
+    ).value;
+
+
+  const colorSelect =
+    document.getElementById(
+      "colorSelect"
+    );
+
+
+  colorSelect.innerHTML =
+    "<option value=''>" +
+    (
+      type
+        ? "Choose a color..."
+        : "Select filament type first"
+    ) +
+    "</option>";
+
+
+  if (!type) {
+    return;
+  }
+
+
+  const colors = [];
+
+
+  shopData.inventory.forEach(
+    function(item) {
+
+      const available =
+        String(item.inStock)
+          .toLowerCase() !== "false";
+
+
+      if (
+        available &&
+        item.type === type &&
+        item.color &&
+        !colors.includes(item.color)
+      ) {
+
+        colors.push(item.color);
+
+      }
+
+    }
+  );
+
+
+  colors.forEach(
+    function(color) {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        color;
+
+      option.textContent =
+        color;
+
+      colorSelect.appendChild(option);
+
+    }
+  );
+
+}
+
+
+/*
+==================================================
+ORDER TYPE
+==================================================
+*/
+
+function setOrderType(type) {
+
+  const orderType =
+    document.getElementById(
+      "orderType"
+    );
+
+  const choices =
+    document.querySelectorAll(
+      ".choice"
+    );
+
+
+  orderType.value = type;
+
+
+  choices.forEach(
+    function(choice) {
+
+      choice.classList.toggle(
+        "active",
+        choice.dataset.type === type
+      );
+
+    }
+  );
+
+
+  document
+    .getElementById("galleryChoice")
+    .style.display =
+      type === "gallery"
+        ? "block"
+        : "none";
+
+
+  document
+    .getElementById("fileChoice")
+    .style.display =
+      type === "file"
+        ? "block"
+        : "none";
+
+
+  document
+    .getElementById("ideaChoice")
+    .style.display =
+      type === "idea"
+        ? "block"
+        : "none";
+
+
+  document
+    .getElementById("linkChoice")
+    .style.display =
+      type === "link"
+        ? "block"
+        : "none";
+
+
+  document
+    .getElementById("printSelect")
+    .required =
+      type === "gallery";
+
+
+  document
+    .getElementById("file")
+    .required =
+      type === "file";
+
+
+  document
+    .getElementById("idea")
+    .required =
+      type === "idea";
+
+
+  document
+    .getElementById("modelLink")
+    .required =
+      type === "link";
+
+}
+
+
+/*
+==================================================
+CHOICE BUTTONS
+==================================================
+*/
+
+document
+  .querySelectorAll(".choice")
+  .forEach(function(button) {
+
+    button.addEventListener(
+      "click",
+      function() {
+
+        setOrderType(
+          button.dataset.type
+        );
+
+      }
+    );
+
+  });
+
+
+/*
+==================================================
+FILE TO BASE64
+==================================================
+*/
+
+function fileToBase64(file) {
+
+  return new Promise(
+    function(resolve, reject) {
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function() {
+
+          const result =
+            reader.result;
+
+          resolve(
+            result.split(",")[1]
+          );
+
+        };
+
+
+      reader.onerror =
+        reject;
+
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+
+}
+
+
+/*
+==================================================
+FILAMENT COLOR CHANGE
+==================================================
+*/
+
+document
+  .getElementById("typeSelect")
+  .addEventListener(
+    "change",
+    function() {
+
+      loadColors();
+
+    }
+  );
+
+
+/*
+==================================================
+SUBMIT ORDER
+==================================================
+*/
+
+document
+  .getElementById("orderForm")
+  .addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      const result =
+        document.getElementById(
+          "orderResult"
+        );
+
+
+      result.className = "";
+      result.textContent =
+        "Submitting order...";
+
+
+      try {
+
+        const formData =
+          new FormData(this);
+
+
+        const orderType =
+          formData.get(
+            "orderType"
+          );
+
+
+        /*
+        FILE
+        */
+
+        let file = null;
+
+
+        const fileInput =
+          document.getElementById(
+            "file"
+          );
+
+
+        if (
+          orderType === "file" &&
+          fileInput.files.length > 0
+        ) {
+
+          const selectedFile =
+            fileInput.files[0];
+
+
+          if (
+            selectedFile.size >
+            15 * 1024 * 1024
+          ) {
+
+            throw new Error(
+              "Your file must be smaller than 15 MB."
+            );
+
+          }
+
+
+          const base64 =
+            await fileToBase64(
+              selectedFile
+            );
+
+
+          file = {
+
+            name:
+              selectedFile.name,
+
+            type:
+              selectedFile.type ||
+              "application/octet-stream",
+
+            base64:
+              base64
+
+          };
+
+        }
+
+
+        /*
+        BUILD ORDER
+        */
+
+        const order = {
+
+          name:
+            formData.get("name"),
+
+          contact:
+            formData.get("contact"),
+
+          orderType:
+            orderType,
+
+          printId:
+            orderType === "gallery"
+              ? formData.get("printId")
+              : "",
+
+          quantity:
+            Number(
+              formData.get("quantity") || 1
+            ),
+
+          filamentType:
+            formData.get(
+              "filamentType"
+            ),
+
+          color:
+            formData.get("color"),
+
+          notes:
+            formData.get("notes") || "",
+
+          idea:
+            orderType === "idea"
+              ? formData.get("idea")
+              : "",
+
+          modelLink:
+            orderType === "link"
+              ? formData.get("modelLink")
+              : "",
+
+          file:
+            file
+
+        };
+
+
+        /*
+        SEND
+        */
+
+        const response =
+          await api(
+            "createOrder",
+            order
+          );
+
+
+        if (
+          !response ||
+          response.ok === false
+        ) {
+
+          throw new Error(
+            response?.error ||
+            "Order could not be submitted."
+          );
+
+        }
+
+
+        /*
+        SUCCESS
+        */
+
+        result.className =
+          "success-message";
+
+
+        result.innerHTML =
+          "<strong>Order submitted!</strong>" +
+          "<br><br>" +
+          "Your order number is:" +
+          "<br>" +
+          "<span class='order-number'>" +
+          escapeHTML(
+            response.orderNumber
+          ) +
+          "</span>" +
+          "<br><br>" +
+          "Save this number so you can track your order.";
+
+
+        this.reset();
+
+
+        setOrderType("gallery");
+
+        loadFilamentTypes();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        result.className =
+          "error-message";
+
+
+        result.textContent =
+          error.message ||
+          "Something went wrong.";
+
+      }
+
+    }
+  );
+
+
+/*
+==================================================
+TRACK ORDER
+==================================================
+*/
+
+document
+  .getElementById("trackForm")
+  .addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      const result =
+        document.getElementById(
+          "trackResult"
+        );
+
+
+      result.innerHTML =
+        "<p>Looking up order...</p>";
+
+
+      try {
+
+        const formData =
+          new FormData(this);
+
+
+        const response =
+          await api(
+            "track",
+            {
+              orderNumber:
+                formData.get(
+                  "orderNumber"
+                )
+            }
+          );
+
+
+        if (
+          !response ||
+          response.ok === false
+        ) {
+
+          throw new Error(
+            response?.error ||
+            "Order not found."
+          );
+
+        }
+
+
+        const order =
+          response.order;
+
+
+        result.innerHTML =
+
+          "<div class='tracking-card'>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Order</span>" +
+              "<strong>" +
+              escapeHTML(
+                order.orderNumber
+              ) +
+              "</strong>" +
+            "</div>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Status</span>" +
+              "<strong>" +
+              escapeHTML(
+                order.status ||
+                "New"
+              ) +
+              "</strong>" +
+            "</div>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Print</span>" +
+              "<strong>" +
+              escapeHTML(
+                order.printName ||
+                "Custom request"
+              ) +
+              "</strong>" +
+            "</div>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Quantity</span>" +
+              "<strong>" +
+              escapeHTML(
+                order.quantity
+              ) +
+              "</strong>" +
+            "</div>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Filament</span>" +
+              "<strong>" +
+              escapeHTML(
+                order.filamentType ||
+                "Not specified"
+              ) +
+              " / " +
+              escapeHTML(
+                order.color ||
+                "Not specified"
+              ) +
+              "</strong>" +
+            "</div>" +
+
+            "<div class='tracking-row'>" +
+              "<span>Estimated completion</span>" +
+              "<strong>" +
+              (
+                order.eta
+                  ? escapeHTML(order.eta)
+                  : "Not set yet"
+              ) +
+              "</strong>" +
+            "</div>" +
+
+          "</div>";
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        result.innerHTML =
+          "<div class='error-message'>" +
+          escapeHTML(
+            error.message
+          ) +
+          "</div>";
+
+      }
+
+    }
+  );
+
+
+/*
+==================================================
+START
+==================================================
+*/
+
+setOrderType("gallery");
+
+loadShop();
+
+</script>
 
 </body>
 </html>
