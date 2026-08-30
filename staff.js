@@ -17,11 +17,11 @@ if (
 API_URL.includes("PASTE_YOUR")
 ) {
 
-```
+
 throw new Error(
   "Google Apps Script URL has not been added."
 );
-```
+
 
 }
 
@@ -42,11 +42,11 @@ await fetch(url);
 
 if (!response.ok) {
 
-```
+
 throw new Error(
   "Could not connect to the server."
 );
-```
+
 
 }
 
@@ -79,7 +79,7 @@ document
 "submit",
 async function(event) {
 
-```
+
   event.preventDefault();
 
 
@@ -158,7 +158,7 @@ async function(event) {
   }
 
 }
-```
+
 
 );
 
@@ -218,7 +218,7 @@ container.innerHTML =
 
 try {
 
-```
+
 const response =
   await api(
     "adminOrders"
@@ -278,11 +278,11 @@ document
     );
 
   });
-```
+
 
 } catch (error) {
 
-```
+
 container.innerHTML = `
   <div class="error-box">
     ${escapeHTML(
@@ -290,7 +290,6 @@ container.innerHTML = `
     )}
   </div>
 `;
-```
 
 }
 
@@ -309,7 +308,7 @@ order.orderNumber
 
 return `
 
-```
+
 <article class="order-card">
 
   <div class="order-main">
@@ -487,7 +486,7 @@ return `
   </div>
 
 </article>
-```
+
 
 `;
 
@@ -532,7 +531,7 @@ document.getElementById(
 
 try {
 
-```
+
 const response =
   await api(
     "updateOrder",
@@ -559,15 +558,15 @@ alert(
 
 
 loadOrders();
-```
+
 
 } catch (error) {
 
-```
+
 alert(
   error.message
 );
-```
+
 
 }
 
@@ -601,7 +600,7 @@ document.getElementById(
 "stats"
 ).innerHTML = `
 
-```
+
 <div class="stat-card">
 
   <span>
@@ -639,7 +638,7 @@ document.getElementById(
   </strong>
 
 </div>
-```
+
 
 `;
 
@@ -658,7 +657,7 @@ document.getElementById(
 
 try {
 
-```
+
 const response =
   await api(
     "adminInventory"
@@ -795,11 +794,11 @@ document
     );
 
   });
-```
+
 
 } catch (error) {
 
-```
+
 container.innerHTML = `
   <div class="error-box">
     ${escapeHTML(
@@ -807,7 +806,7 @@ container.innerHTML = `
     )}
   </div>
 `;
-```
+
 
 }
 
@@ -825,7 +824,7 @@ document
 "click",
 async () => {
 
-```
+
   const type =
     document
       .getElementById(
@@ -903,7 +902,7 @@ async () => {
   }
 
 }
-```
+
 
 );
 
