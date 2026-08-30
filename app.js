@@ -5,13 +5,12 @@ let shopData = {
   inventory: []
 };
 
-let staffToken =
-  localStorage.getItem("staffToken") || "";
+let staffToken = localStorage.getItem("staffToken") || "";
 
 
-/* ================================
+/* =========================
    API
-================================ */
+========================= */
 
 async function api(action, data = {}) {
 
@@ -20,988 +19,675 @@ async function api(action, data = {}) {
     "?action=" +
     encodeURIComponent(action) +
     "&data=" +
-    encodeURIComponent(
-      JSON.stringify(data)
-    );
+    encodeURIComponent(JSON.stringify(data));
 
-  const response =
-    await fetch(url);
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(
-      "Could not connect to the server."
-    );
+    throw new Error("Could not connect to the server.");
   }
 
-  const result =
-    await response.json();
+  const result = await response.json();
 
-  if (
-    result &&
-    result.ok === false
-  ) {
-    throw new Error(
-      result.error ||
-      "The server returned an error."
-    );
+  if (result.ok === false) {
+    throw new Error(result.error || "Server error.");
   }
 
   return result;
 }
 
 
-/* ================================
-   HTML ESCAPING
-================================ */
+/* =========================
+   HTML SAFETY
+========================= */
 
 function escapeHTML(value) {
-
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-
 }
 
 
-/* ================================
-   LOAD SHOP
-================================ */
+/* =========================
+   LOAD EVERYTHING
+========================= */
 
 async function loadShop() {
 
-  const gallery =
-    document.getElementById(
-      "galleryGrid"
-    );
-
   try {
 
-    const response =
-      await api("catalog");
+    const data = await api("catalog");
 
     shopData.gallery =
-      Array.isArray(response.gallery)
-        ? response.gallery
+      Array.isArray(data.gallery)
+        ? data.gallery
         : [];
 
     shopData.inventory =
-      Array.isArray(response.inventory)
-        ? response.inventory
+      Array.isArray(data.inventory)
+        ? data.inventory
         : [];
 
-
-    loadGallery();
-    loadPrints();
-    loadFilamentTypes();
+    showGallery();
+    showPrints();
+    showFilamentTypes();
 
   } catch (error) {
 
     console.error(error);
 
-    if (gallery) {
+    const gallery =
+      document.getElementById("galleryGrid");
 
+    if (gallery) {
       gallery.innerHTML =
         "<div class='error-box'>" +
         "<h3>Shop unavailable</h3>" +
         "<p>" +
-        escapeHTML(
-          error.message
-        ) +
+        escapeHTML(error.message) +
         "</p>" +
         "</div>";
-
     }
-
   }
-
 }
 
 
-/* ================================
+/* =========================
    GALLERY
-================================ */
+========================= */
 
-function loadGallery() {
+function showGallery() {
 
   const gallery =
-    document.getElementById(
-      "galleryGrid"
-    );
+    document.getElementById("galleryGrid");
 
   if (!gallery) {
     return;
   }
 
-
-  const prints =
-    shopData.gallery;
-
-
-  if (prints.length === 0) {
+  if (shopData.gallery.length === 0) {
 
     gallery.innerHTML =
       "<div class='empty'>" +
       "<h3>No prints yet</h3>" +
-      "<p>Add a print to the Gallery sheet.</p>" +
+      "<p>Add prints to the Gallery sheet.</p>" +
       "</div>";
 
     return;
   }
 
-
   gallery.innerHTML =
-    prints.map(function(print) {
+    shopData.gallery.map(function(print) {
 
-      let imageHTML =
-        "<div class='no-image'>" +
-        "3D PRINT" +
-        "</div>";
-
+      let image;
 
       if (print.imageUrl) {
 
-        imageHTML =
+        image =
           "<img src='" +
-          escapeHTML(
-            print.imageUrl
-          ) +
+          escapeHTML(print.imageUrl) +
           "' alt='" +
-          escapeHTML(
-            print.name
-          ) +
+          escapeHTML(print.name) +
           "'>";
 
-      }
+      } else {
 
+        image =
+          "<div class='no-image'>3D PRINT</div>";
+      }
 
       return (
         "<article class='print-card'>" +
-
-          imageHTML +
-
+          image +
           "<div class='print-info'>" +
-
             "<h3>" +
-            escapeHTML(
-              print.name
-            ) +
+            escapeHTML(print.name) +
             "</h3>" +
-
             "<p>" +
-            escapeHTML(
-              print.description || ""
-            ) +
+            escapeHTML(print.description || "") +
             "</p>" +
-
             "<button " +
             "type='button' " +
             "class='button order-print' " +
             "data-id='" +
-            escapeHTML(
-              print.id
-            ) +
+            escapeHTML(print.id) +
             "'>" +
             "Order this" +
             "</button>" +
-
           "</div>" +
-
         "</article>"
       );
 
     }).join("");
 
-
   document
-    .querySelectorAll(
-      ".order-print"
-    )
+    .querySelectorAll(".order-print")
     .forEach(function(button) {
 
-      button.addEventListener(
-        "click",
-        function() {
+      button.addEventListener("click", function() {
 
-          const orderType =
-            document.getElementById(
-              "orderType"
-            );
+        const orderType =
+          document.getElementById("orderType");
 
-          const printSelect =
-            document.getElementById(
-              "printSelect"
-            );
+        const printSelect =
+          document.getElementById("printSelect");
 
-
-          if (orderType) {
-
-            orderType.value =
-              "gallery";
-
-            updateOrderType();
-
-          }
-
-
-          if (printSelect) {
-
-            printSelect.value =
-              button.dataset.id;
-
-          }
-
-
-          const order =
-            document.getElementById(
-              "order"
-            );
-
-
-          if (order) {
-
-            order.scrollIntoView({
-              behavior: "smooth"
-            });
-
-          }
-
+        if (orderType) {
+          orderType.value = "gallery";
+          updateOrderType();
         }
-      );
+
+        if (printSelect) {
+          printSelect.value =
+            button.dataset.id;
+        }
+
+        const order =
+          document.getElementById("order");
+
+        if (order) {
+          order.scrollIntoView({
+            behavior: "smooth"
+          });
+        }
+
+      });
 
     });
-
 }
 
 
-/* ================================
+/* =========================
    PRINT DROPDOWN
-================================ */
+========================= */
 
-function loadPrints() {
+function showPrints() {
 
   const select =
-    document.getElementById(
-      "printSelect"
-    );
+    document.getElementById("printSelect");
 
   if (!select) {
     return;
   }
-
 
   select.innerHTML =
     "<option value=''>" +
     "Choose a print..." +
     "</option>";
 
+  shopData.gallery.forEach(function(print) {
 
-  shopData.gallery
-    .forEach(function(print) {
+    const option =
+      document.createElement("option");
 
-      const option =
-        document.createElement(
-          "option"
-        );
+    option.value = print.id;
+    option.textContent = print.name;
 
-      option.value =
-        print.id;
+    select.appendChild(option);
 
-      option.textContent =
-        print.name;
-
-      select.appendChild(
-        option
-      );
-
-    });
-
+  });
 }
 
 
-/* ================================
+/* =========================
    FILAMENT TYPES
-================================ */
+========================= */
 
-function loadFilamentTypes() {
+function showFilamentTypes() {
 
   const select =
-    document.getElementById(
-      "typeSelect"
-    );
+    document.getElementById("typeSelect");
 
   if (!select) {
     return;
   }
 
-
   const types = [];
 
+  shopData.inventory.forEach(function(item) {
 
-  shopData.inventory
-    .forEach(function(item) {
-
-      const inStock =
-        String(
-          item.inStock
-        )
+    const stock =
+      String(item.inStock)
         .trim()
         .toLowerCase();
 
+    const available =
+      stock !== "false" &&
+      stock !== "no" &&
+      stock !== "0";
 
-      const available =
-        inStock !== "false" &&
-        inStock !== "no" &&
-        inStock !== "0" &&
-        inStock !== "";
+    const type =
+      String(item.type || "").trim();
 
+    if (
+      available &&
+      type &&
+      !types.some(function(existing) {
+        return existing.toLowerCase() ===
+          type.toLowerCase();
+      })
+    ) {
+      types.push(type);
+    }
 
-      if (
-        available &&
-        item.type
-      ) {
-
-        const type =
-          String(
-            item.type
-          ).trim();
-
-
-        const alreadyExists =
-          types.some(function(existing) {
-
-            return (
-              existing.toLowerCase() ===
-              type.toLowerCase()
-            );
-
-          });
-
-
-        if (
-          type &&
-          !alreadyExists
-        ) {
-
-          types.push(type);
-
-        }
-
-      }
-
-    });
-
+  });
 
   select.innerHTML =
     "<option value=''>" +
-    "Choose a type..." +
+    "Choose a filament..." +
     "</option>";
-
 
   types.forEach(function(type) {
 
     const option =
-      document.createElement(
-        "option"
-      );
+      document.createElement("option");
 
-    option.value =
-      type;
+    option.value = type;
+    option.textContent = type;
 
-    option.textContent =
-      type;
+    select.appendChild(option);
 
-    select.appendChild(
-      option
-    );
+  });
+
+  /*
+   * IMPORTANT:
+   * We do NOT touch the color
+   * dropdown here.
+   */
+
+}
+
+
+/* =========================
+   COLORS
+========================= */
+
+function showColors() {
+
+  const typeSelect =
+    document.getElementById("typeSelect");
+
+  const colorSelect =
+    document.getElementById("colorSelect");
+
+  if (!typeSelect || !colorSelect) {
+    return;
+  }
+
+  const selectedType =
+    String(typeSelect.value || "").trim();
+
+  /*
+   * No filament selected
+   */
+
+  if (!selectedType) {
+
+    colorSelect.innerHTML =
+      "<option value=''>" +
+      "Select filament first" +
+      "</option>";
+
+    return;
+  }
+
+
+  /*
+   * A filament IS selected.
+   * Now find its colors.
+   */
+
+  const colors = [];
+
+  shopData.inventory.forEach(function(item) {
+
+    const type =
+      String(item.type || "").trim();
+
+    const color =
+      String(item.color || "").trim();
+
+    const stock =
+      String(item.inStock)
+        .trim()
+        .toLowerCase();
+
+    const available =
+      stock !== "false" &&
+      stock !== "no" &&
+      stock !== "0";
+
+    if (
+      available &&
+      type.toLowerCase() ===
+        selectedType.toLowerCase() &&
+      color
+    ) {
+
+      const exists =
+        colors.some(function(existing) {
+          return existing.toLowerCase() ===
+            color.toLowerCase();
+        });
+
+      if (!exists) {
+        colors.push(color);
+      }
+    }
 
   });
 
 
   /*
-   * Reset colors when the
-   * filament type list is loaded.
+   * Build the dropdown ONCE.
    */
-
-  resetColors();
-
-}
-
-
-/* ================================
-   RESET COLORS
-================================ */
-
-function resetColors() {
-
-  const colorSelect =
-    document.getElementById(
-      "colorSelect"
-    );
-
-  if (!colorSelect) {
-    return;
-  }
-
 
   colorSelect.innerHTML =
     "<option value=''>" +
     "Choose a color..." +
     "</option>";
 
-}
-
-
-/* ================================
-   LOAD COLORS
-================================ */
-
-function loadColors() {
-
-  const typeSelect =
-    document.getElementById(
-      "typeSelect"
-    );
-
-  const colorSelect =
-    document.getElementById(
-      "colorSelect"
-    );
-
-
-  if (
-    !typeSelect ||
-    !colorSelect
-  ) {
-    return;
-  }
-
-
-  const selectedType =
-    String(
-      typeSelect.value || ""
-    ).trim();
-
-
-  resetColors();
-
-
-  if (!selectedType) {
-    return;
-  }
-
-
-  const colors = [];
-
-
-  shopData.inventory
-    .forEach(function(item) {
-
-      const itemType =
-        String(
-          item.type || ""
-        ).trim();
-
-
-      const itemColor =
-        String(
-          item.color || ""
-        ).trim();
-
-
-      const stock =
-        String(
-          item.inStock
-        )
-        .trim()
-        .toLowerCase();
-
-
-      const available =
-        stock !== "false" &&
-        stock !== "no" &&
-        stock !== "0" &&
-        stock !== "";
-
-
-      if (
-        available &&
-        itemType.toLowerCase() ===
-          selectedType.toLowerCase() &&
-        itemColor
-      ) {
-
-        const exists =
-          colors.some(function(existing) {
-
-            return (
-              existing.toLowerCase() ===
-              itemColor.toLowerCase()
-            );
-
-          });
-
-
-        if (!exists) {
-
-          colors.push(
-            itemColor
-          );
-
-        }
-
-      }
-
-    });
-
 
   colors.forEach(function(color) {
 
     const option =
-      document.createElement(
-        "option"
-      );
+      document.createElement("option");
 
-    option.value =
-      color;
+    option.value = color;
+    option.textContent = color;
 
-    option.textContent =
-      color;
-
-    colorSelect.appendChild(
-      option
-    );
+    colorSelect.appendChild(option);
 
   });
+
+
+  /*
+   * If there are no colors.
+   */
+
+  if (colors.length === 0) {
+
+    colorSelect.innerHTML =
+      "<option value=''>" +
+      "No colors available" +
+      "</option>";
+
+  }
 
 }
 
 
-/* ================================
+/* =========================
    ORDER TYPE
-================================ */
+========================= */
 
 function updateOrderType() {
 
   const orderType =
-    document.getElementById(
-      "orderType"
-    );
-
+    document.getElementById("orderType");
 
   if (!orderType) {
     return;
   }
 
-
-  const type =
-    orderType.value;
-
+  const type = orderType.value;
 
   const galleryChoice =
-    document.getElementById(
-      "galleryChoice"
-    );
+    document.getElementById("galleryChoice");
 
   const customFileChoice =
-    document.getElementById(
-      "customFileChoice"
-    );
+    document.getElementById("customFileChoice");
 
   const ideaChoice =
-    document.getElementById(
-      "ideaChoice"
-    );
+    document.getElementById("ideaChoice");
 
   const linkChoice =
-    document.getElementById(
-      "linkChoice"
-    );
-
+    document.getElementById("linkChoice");
 
   const printSelect =
-    document.getElementById(
-      "printSelect"
-    );
+    document.getElementById("printSelect");
 
-  const fileInput =
-    document.getElementById(
-      "file"
-    );
+  const file =
+    document.getElementById("file");
 
-  const ideaInput =
-    document.getElementById(
-      "idea"
-    );
+  const idea =
+    document.getElementById("idea");
 
-  const linkInput =
-    document.getElementById(
-      "modelLink"
-    );
+  const modelLink =
+    document.getElementById("modelLink");
 
 
-  if (galleryChoice) {
-    galleryChoice.style.display =
-      "none";
-  }
+  if (galleryChoice)
+    galleryChoice.style.display = "none";
 
-  if (customFileChoice) {
-    customFileChoice.style.display =
-      "none";
-  }
+  if (customFileChoice)
+    customFileChoice.style.display = "none";
 
-  if (ideaChoice) {
-    ideaChoice.style.display =
-      "none";
-  }
+  if (ideaChoice)
+    ideaChoice.style.display = "none";
 
-  if (linkChoice) {
-    linkChoice.style.display =
-      "none";
-  }
+  if (linkChoice)
+    linkChoice.style.display = "none";
 
 
-  if (printSelect) {
-    printSelect.required =
-      false;
-  }
+  if (printSelect)
+    printSelect.required = false;
 
-  if (fileInput) {
-    fileInput.required =
-      false;
-  }
+  if (file)
+    file.required = false;
 
-  if (ideaInput) {
-    ideaInput.required =
-      false;
-  }
+  if (idea)
+    idea.required = false;
 
-  if (linkInput) {
-    linkInput.required =
-      false;
+  if (modelLink)
+    modelLink.required = false;
+
+
+  if (type === "gallery") {
+
+    if (galleryChoice)
+      galleryChoice.style.display = "block";
+
+    if (printSelect)
+      printSelect.required = true;
   }
 
 
-  if (
-    type ===
-    "gallery"
-  ) {
+  if (type === "file") {
 
-    if (galleryChoice) {
-      galleryChoice.style.display =
-        "block";
-    }
+    if (customFileChoice)
+      customFileChoice.style.display = "block";
 
-    if (printSelect) {
-      printSelect.required =
-        true;
-    }
-
+    if (file)
+      file.required = true;
   }
 
 
-  if (
-    type ===
-    "file"
-  ) {
+  if (type === "idea") {
 
-    if (customFileChoice) {
-      customFileChoice.style.display =
-        "block";
-    }
+    if (ideaChoice)
+      ideaChoice.style.display = "block";
 
-    if (fileInput) {
-      fileInput.required =
-        true;
-    }
-
+    if (idea)
+      idea.required = true;
   }
 
 
-  if (
-    type ===
-    "idea"
-  ) {
+  if (type === "link") {
 
-    if (ideaChoice) {
-      ideaChoice.style.display =
-        "block";
-    }
+    if (linkChoice)
+      linkChoice.style.display = "block";
 
-    if (ideaInput) {
-      ideaInput.required =
-        true;
-    }
-
-  }
-
-
-  if (
-    type ===
-    "link"
-  ) {
-
-    if (linkChoice) {
-      linkChoice.style.display =
-        "block";
-    }
-
-    if (linkInput) {
-      linkInput.required =
-        true;
-    }
-
+    if (modelLink)
+      modelLink.required = true;
   }
 
 }
 
 
-/* ================================
-   FILE TO BASE64
-================================ */
+/* =========================
+   FILE READER
+========================= */
 
 function fileToBase64(file) {
 
-  return new Promise(
-    function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
 
-      const reader =
-        new FileReader();
+    const reader =
+      new FileReader();
 
+    reader.onload = function() {
 
-      reader.onload =
-        function() {
+      const result =
+        String(reader.result);
 
-          const result =
-            String(
-              reader.result
-            );
+      const comma =
+        result.indexOf(",");
 
+      if (comma === -1) {
+        reject(
+          new Error("Could not read file.")
+        );
+        return;
+      }
 
-          const comma =
-            result.indexOf(",");
+      resolve(
+        result.substring(comma + 1)
+      );
+    };
 
+    reader.onerror = function() {
 
-          if (
-            comma === -1
-          ) {
-
-            reject(
-              new Error(
-                "Could not read the file."
-              )
-            );
-
-            return;
-
-          }
-
-
-          resolve(
-            result.substring(
-              comma + 1
-            )
-          );
-
-        };
-
-
-      reader.onerror =
-        function() {
-
-          reject(
-            new Error(
-              "Could not read the file."
-            )
-          );
-
-        };
-
-
-      reader.readAsDataURL(
-        file
+      reject(
+        new Error("Could not read file.")
       );
 
-    }
-  );
+    };
 
+    reader.readAsDataURL(file);
+
+  });
 }
 
 
-/* ================================
+/* =========================
    ORDER FORM
-================================ */
+========================= */
 
-const orderForm =
-  document.getElementById(
-    "orderForm"
-  );
+function setupOrderForm() {
 
+  const form =
+    document.getElementById("orderForm");
 
-if (orderForm) {
+  if (!form) {
+    return;
+  }
 
-  orderForm.addEventListener(
+  form.addEventListener(
     "submit",
     async function(event) {
 
       event.preventDefault();
-
 
       const result =
         document.getElementById(
           "orderResult"
         );
 
-
       if (result) {
-
-        result.className =
-          "success-message";
-
         result.textContent =
           "Submitting order...";
-
+        result.className =
+          "success-message";
       }
-
 
       try {
 
         const formData =
-          new FormData(
-            orderForm
-          );
-
+          new FormData(form);
 
         const orderType =
-          String(
-            formData.get(
-              "orderType"
-            ) || ""
-          );
+          formData.get("orderType");
+
+        let uploadedFile = null;
 
 
-        let file = null;
-
-
-        if (
-          orderType ===
-          "file"
-        ) {
+        if (orderType === "file") {
 
           const fileInput =
-            document.getElementById(
-              "file"
-            );
-
+            document.getElementById("file");
 
           if (
             !fileInput ||
             fileInput.files.length === 0
           ) {
-
             throw new Error(
               "Please choose a 3D model file."
             );
-
           }
 
-
-          const selectedFile =
+          const file =
             fileInput.files[0];
 
-
           if (
-            selectedFile.size >
+            file.size >
             15 * 1024 * 1024
           ) {
-
             throw new Error(
-              "Your file must be smaller than 15 MB."
+              "File must be smaller than 15 MB."
             );
-
           }
 
-
-          const base64 =
-            await fileToBase64(
-              selectedFile
-            );
-
-
-          file = {
-
-            name:
-              selectedFile.name,
-
+          uploadedFile = {
+            name: file.name,
             type:
-              selectedFile.type ||
+              file.type ||
               "application/octet-stream",
-
             base64:
-              base64
-
+              await fileToBase64(file)
           };
-
         }
 
 
         const order = {
 
           name:
-            formData.get(
-              "name"
-            ),
+            formData.get("name"),
 
           contact:
-            formData.get(
-              "contact"
-            ),
+            formData.get("contact"),
 
           orderType:
             orderType,
 
           printId:
-            formData.get(
-              "printId"
-            ),
+            formData.get("printId"),
 
           idea:
-            formData.get(
-              "idea"
-            ),
+            formData.get("idea"),
 
           modelLink:
-            formData.get(
-              "modelLink"
-            ),
+            formData.get("modelLink"),
 
           quantity:
             Number(
-              formData.get(
-                "quantity"
-              ) || 1
+              formData.get("quantity") || 1
             ),
 
           filamentType:
-            formData.get(
-              "filamentType"
-            ),
+            formData.get("filamentType"),
 
           color:
-            formData.get(
-              "color"
-            ),
+            formData.get("color"),
 
           notes:
-            formData.get(
-              "notes"
-            ),
+            formData.get("notes"),
 
           file:
-            file
-
+            uploadedFile
         };
 
 
@@ -1013,9 +699,6 @@ if (orderForm) {
 
 
         if (result) {
-
-          result.className =
-            "success-message";
 
           result.innerHTML =
             "<strong>Order submitted!</strong>" +
@@ -1029,29 +712,35 @@ if (orderForm) {
             "<br><br>" +
             "Save this number to track your order.";
 
+          result.className =
+            "success-message";
         }
 
 
-        orderForm.reset();
+        form.reset();
 
         updateOrderType();
 
-        loadFilamentTypes();
+        /*
+         * IMPORTANT:
+         * Don't reload filament types here.
+         * That could interfere with colors.
+         */
+
+        showColors();
 
 
       } catch (error) {
 
         console.error(error);
 
-
         if (result) {
-
-          result.className =
-            "error-message";
 
           result.textContent =
             error.message;
 
+          result.className =
+            "error-message";
         }
 
       }
@@ -1062,46 +751,41 @@ if (orderForm) {
 }
 
 
-/* ================================
-   TRACK ORDER
-================================ */
+/* =========================
+   TRACKING
+========================= */
 
-const trackForm =
-  document.getElementById(
-    "trackForm"
-  );
+function setupTracking() {
 
+  const form =
+    document.getElementById(
+      "trackForm"
+    );
 
-if (trackForm) {
+  if (!form) {
+    return;
+  }
 
-  trackForm.addEventListener(
+  form.addEventListener(
     "submit",
     async function(event) {
 
       event.preventDefault();
-
 
       const result =
         document.getElementById(
           "trackResult"
         );
 
-
       if (result) {
-
         result.innerHTML =
           "<p>Looking up order...</p>";
-
       }
-
 
       try {
 
         const formData =
-          new FormData(
-            trackForm
-          );
-
+          new FormData(form);
 
         const response =
           await api(
@@ -1113,7 +797,6 @@ if (trackForm) {
                 )
             }
           );
-
 
         const order =
           response.order;
@@ -1136,8 +819,7 @@ if (trackForm) {
               "<span>Status</span>" +
               "<strong>" +
                 escapeHTML(
-                  order.status ||
-                  "New"
+                  order.status || "New"
                 ) +
               "</strong>" +
             "</div>" +
@@ -1165,13 +847,11 @@ if (trackForm) {
               "<span>Filament</span>" +
               "<strong>" +
                 escapeHTML(
-                  order.filamentType ||
-                  ""
+                  order.filamentType || ""
                 ) +
                 " / " +
                 escapeHTML(
-                  order.color ||
-                  ""
+                  order.color || ""
                 ) +
               "</strong>" +
             "</div>" +
@@ -1181,9 +861,7 @@ if (trackForm) {
               "<strong>" +
                 (
                   order.eta
-                    ? escapeHTML(
-                        order.eta
-                      )
+                    ? escapeHTML(order.eta)
                     : "Not set yet"
                 ) +
               "</strong>" +
@@ -1191,19 +869,14 @@ if (trackForm) {
 
           "</div>";
 
-
       } catch (error) {
 
-        if (result) {
-
-          result.innerHTML =
-            "<div class='error-box'>" +
-            escapeHTML(
-              error.message
-            ) +
-            "</div>";
-
-        }
+        result.innerHTML =
+          "<div class='error-box'>" +
+          escapeHTML(
+            error.message
+          ) +
+          "</div>";
 
       }
 
@@ -1213,158 +886,9 @@ if (trackForm) {
 }
 
 
-/* ================================
-   STAFF FUNCTIONS
-================================ */
-
-async function staffLogin(
-  password
-) {
-
-  const response =
-    await api(
-      "adminLogin",
-      {
-        password:
-          password
-      }
-    );
-
-
-  staffToken =
-    response.token;
-
-
-  localStorage.setItem(
-    "staffToken",
-    staffToken
-  );
-
-
-  return response;
-
-}
-
-
-async function getStaffOrders() {
-
-  if (!staffToken) {
-
-    throw new Error(
-      "Please sign in."
-    );
-
-  }
-
-
-  return await api(
-    "adminOrders",
-    {
-      token:
-        staffToken
-    }
-  );
-
-}
-
-
-async function getStaffInventory() {
-
-  if (!staffToken) {
-
-    throw new Error(
-      "Please sign in."
-    );
-
-  }
-
-
-  return await api(
-    "adminInventory",
-    {
-      token:
-        staffToken
-    }
-  );
-
-}
-
-
-async function changeOrderStatus(
-  orderNumber,
-  status,
-  eta
-) {
-
-  if (!staffToken) {
-
-    throw new Error(
-      "Please sign in."
-    );
-
-  }
-
-
-  return await api(
-    "updateOrder",
-    {
-      token:
-        staffToken,
-
-      orderNumber:
-        orderNumber,
-
-      status:
-        status,
-
-      eta:
-        eta || ""
-    }
-  );
-
-}
-
-
-async function changeInventory(
-  type,
-  color,
-  inStock
-) {
-
-  if (!staffToken) {
-
-    throw new Error(
-      "Please sign in."
-    );
-
-  }
-
-
-  return await api(
-    "setInventory",
-    {
-      token:
-        staffToken,
-
-      type:
-        type,
-
-      color:
-        color,
-
-      inStock:
-        Boolean(
-          inStock
-        )
-    }
-  );
-
-}
-
-
-/* ================================
-   PAGE START
-================================ */
+/* =========================
+   START
+========================= */
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -1375,15 +899,12 @@ document.addEventListener(
         "typeSelect"
       );
 
-
     if (typeSelect) {
 
       typeSelect.addEventListener(
         "change",
         function() {
-
-          loadColors();
-
+          showColors();
         }
       );
 
@@ -1395,20 +916,19 @@ document.addEventListener(
         "orderType"
       );
 
-
     if (orderType) {
 
       orderType.addEventListener(
         "change",
-        function() {
-
-          updateOrderType();
-
-        }
+        updateOrderType
       );
 
     }
 
+
+    setupOrderForm();
+
+    setupTracking();
 
     updateOrderType();
 
