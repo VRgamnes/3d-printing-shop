@@ -1,598 +1,585 @@
 <!DOCTYPE html>
+
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Printing Shop</title>
 
-  <meta charset="UTF-8">
+<style>
+* {
+  box-sizing: border-box;
+}
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
 
-  <title>3D Printing Shop</title>
+header {
+  background: #111;
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+}
 
-  <style>
+header h1 {
+  margin: 0 0 8px;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+header p {
+  margin: 0;
+  color: #ccc;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #222;
-    }
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 20px;
+}
 
-    header {
-      background: #111;
-      color: white;
-      padding: 25px;
-      text-align: center;
-    }
+section {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
 
-    header h1 {
-      margin: 0 0 8px;
-    }
+h2 {
+  margin-top: 0;
+}
 
-    header p {
-      margin: 0;
-      color: #ccc;
-    }
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+}
 
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 30px 20px;
-    }
+.print-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+}
 
-    section {
-      background: white;
-      border-radius: 14px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.08);
-    }
+.print-card img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  display: block;
+}
 
-    h2 {
-      margin-top: 0;
-    }
+.no-image {
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ddd;
+  color: #777;
+  font-weight: bold;
+}
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 20px;
-    }
+.print-info {
+  padding: 15px;
+}
 
-    .print-card {
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      overflow: hidden;
-      background: white;
-    }
+.print-info h3 {
+  margin-top: 0;
+}
 
-    .print-card img {
-      width: 100%;
-      height: 210px;
-      object-fit: cover;
-      display: block;
-    }
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 15px;
+  margin-bottom: 6px;
+}
 
-    .no-image {
-      height: 210px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #ddd;
-      color: #777;
-      font-weight: bold;
-    }
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
 
-    .print-info {
-      padding: 15px;
-    }
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
 
-    .print-info h3 {
-      margin-top: 0;
-    }
+.button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+  background: #111;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 15px;
+}
 
-    label {
-      display: block;
-      font-weight: bold;
-      margin-top: 15px;
-      margin-bottom: 6px;
-    }
+.button:hover {
+  opacity: .85;
+}
 
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
+.button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
+.order-type-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
 
-    .button {
-      border: none;
-      border-radius: 8px;
-      padding: 12px 18px;
-      background: #111;
-      color: white;
-      cursor: pointer;
-      font-size: 15px;
-      margin-top: 15px;
-    }
+.order-type-box label {
+  margin: 0;
+  font-weight: normal;
+  cursor: pointer;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
 
-    .button:hover {
-      opacity: .85;
-    }
+.order-type-box input {
+  width: auto;
+  margin-right: 5px;
+}
 
-    .order-type-box {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
+.choice-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f7f7f7;
+  border-radius: 10px;
+}
 
-    .order-type-box label {
-      margin: 0;
-      font-weight: normal;
-      cursor: pointer;
-    }
+.hidden {
+  display: none !important;
+}
 
-    .order-type-box input {
-      width: auto;
-      margin-right: 5px;
-    }
+.success-message,
+.error-message,
+.error-box {
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
 
-    .choice-box {
-      margin-top: 15px;
-      padding: 15px;
-      background: #f7f7f7;
-      border-radius: 10px;
-    }
+.success-message {
+  background: #e8f7e8;
+  border: 1px solid #8ac98a;
+}
 
-    .hidden {
-      display: none !important;
-    }
+.error-message,
+.error-box {
+  background: #ffecec;
+  border: 1px solid #e08a8a;
+}
 
-    .success-message,
-    .error-message,
-    .error-box {
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 15px;
-    }
+.tracking-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 15px;
+}
 
-    .success-message {
-      background: #e8f7e8;
-      border: 1px solid #8ac98a;
-    }
+.tracking-number,
+.tracking-status,
+.tracking-row {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+}
 
-    .error-message,
-    .error-box {
-      background: #ffecec;
-      border: 1px solid #e08a8a;
-    }
+.tracking-row:last-child {
+  border-bottom: none;
+}
 
-    .tracking-card {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+.tracking-number span,
+.tracking-status span,
+.tracking-row span {
+  color: #777;
+}
 
-    .tracking-number,
-    .tracking-status,
-    .tracking-row {
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      border-bottom: 1px solid #eee;
-    }
+.small-text {
+  color: #777;
+  font-size: 14px;
+}
 
-    .tracking-row:last-child {
-      border-bottom: none;
-    }
+.loading {
+  color: #777;
+}
 
-    .tracking-number span,
-    .tracking-status span,
-    .tracking-row span {
-      color: #777;
-    }
+@media (max-width: 600px) {
+  main {
+    padding: 15px;
+  }
 
-    @media (max-width: 600px) {
+  section {
+    padding: 18px;
+  }
 
-      main {
-        padding: 15px;
-      }
-
-      section {
-        padding: 18px;
-      }
-
-      .tracking-number,
-      .tracking-status,
-      .tracking-row {
-        flex-direction: column;
-        gap: 5px;
-      }
-
-    }
-
-  </style>
+  .tracking-number,
+  .tracking-status,
+  .tracking-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+</style>
 
 </head>
 
-
 <body>
 
-
 <header>
-
   <h1>3D Printing Shop</h1>
-
   <p>Choose a print or submit your own model.</p>
-
 </header>
-
 
 <main>
 
+<!-- =====================================================
+     GALLERY
+====================================================== -->
 
-  <!-- =====================================================
-       GALLERY
-  ====================================================== -->
+<section>
 
-  <section>
+  <h2>Gallery</h2>
 
-    <h2>Gallery</h2>
+  <div id="galleryGrid" class="gallery">
+    <p class="loading">Loading prints...</p>
+  </div>
 
-    <div
-      id="galleryGrid"
-      class="gallery"
+</section>
+
+<!-- =====================================================
+     ORDER FORM
+====================================================== -->
+
+<section id="order">
+
+  <h2>Place an Order</h2>
+
+  <form id="orderForm">
+
+
+<label for="name">
+  Your Name
+</label>
+
+<input
+  id="name"
+  name="name"
+  type="text"
+  required
+>
+
+
+<label for="contact">
+  Email or Phone
+</label>
+
+<input
+  id="contact"
+  name="contact"
+  type="text"
+  required
+>
+
+
+<label>
+  What would you like printed?
+</label>
+
+<div class="order-type-box">
+
+  <label>
+    <input
+      type="radio"
+      name="orderType"
+      value="gallery"
+      checked
     >
+    Gallery Print
+  </label>
+
+  <label>
+    <input
+      type="radio"
+      name="orderType"
+      value="file"
+    >
+    Upload a File
+  </label>
+
+  <label>
+    <input
+      type="radio"
+      name="orderType"
+      value="idea"
+    >
+    I Have an Idea
+  </label>
+
+  <label>
+    <input
+      type="radio"
+      name="orderType"
+      value="link"
+    >
+    Model Link
+  </label>
+
+</div>
+
+
+<!-- =================================================
+     GALLERY OPTION
+================================================== -->
+
+<div
+  id="galleryChoice"
+  class="choice-box"
+>
+
+  <label for="printSelect">
+    Choose a print
+  </label>
+
+  <select
+    id="printSelect"
+    name="printId"
+  >
+    <option value="">
+      Loading prints...
+    </option>
+  </select>
+
+</div>
+
+
+<!-- =================================================
+     FILE OPTION
+================================================== -->
+
+<div
+  id="fileChoice"
+  class="choice-box hidden"
+>
+
+  <label for="file">
+    Upload your 3D model
+  </label>
+
+  <input
+    id="file"
+    name="file"
+    type="file"
+    accept=".stl,.3mf,.obj,.step,.stp"
+  >
+
+  <p class="small-text">
+    Accepted: STL, 3MF, OBJ, STEP, STP
+    <br>
+    Maximum file size: 15 MB.
+  </p>
+
+</div>
+
+
+<!-- =================================================
+     IDEA OPTION
+================================================== -->
+
+<div
+  id="ideaChoice"
+  class="choice-box hidden"
+>
+
+  <label for="idea">
+    Describe your idea
+  </label>
+
+  <textarea
+    id="idea"
+    name="idea"
+    placeholder="Tell us what you want printed. Include as much detail as possible."
+  ></textarea>
 
-      <p>Loading prints...</p>
+</div>
 
-    </div>
 
-  </section>
+<!-- =================================================
+     LINK OPTION
+================================================== -->
 
+<div
+  id="linkChoice"
+  class="choice-box hidden"
+>
 
-  <!-- =====================================================
-       ORDER FORM
-  ====================================================== -->
+  <label for="modelLink">
+    Model Link
+  </label>
 
-  <section id="order">
+  <input
+    id="modelLink"
+    name="modelLink"
+    type="url"
+    placeholder="https://..."
+  >
 
-    <h2>Place an Order</h2>
+  <p class="small-text">
+    Paste a link to the 3D model you want printed.
+  </p>
 
-    <form id="orderForm">
+</div>
 
 
-      <label for="name">
-        Your Name
-      </label>
+<!-- =================================================
+     QUANTITY
+================================================== -->
 
-      <input
-        id="name"
-        name="name"
-        type="text"
-        required
-      >
+<label for="quantity">
+  Quantity
+</label>
 
+<input
+  id="quantity"
+  name="quantity"
+  type="number"
+  min="1"
+  value="1"
+  required
+>
 
-      <label for="contact">
-        Email or Phone
-      </label>
 
-      <input
-        id="contact"
-        name="contact"
-        type="text"
-        required
-      >
+<!-- =================================================
+     FILAMENT TYPE
+================================================== -->
 
+<label for="typeSelect">
+  Filament Type
+</label>
 
-      <label>
-        What would you like printed?
-      </label>
+<select
+  id="typeSelect"
+  name="filamentType"
+  required
+>
 
+  <option value="">
+    Loading filament types...
+  </option>
 
-      <div class="order-type-box">
+</select>
 
-        <label>
 
-          <input
-            type="radio"
-            name="orderType"
-            value="gallery"
-            checked
-          >
+<!-- =================================================
+     COLOR
+================================================== -->
 
-          Gallery Print
+<label for="colorSelect">
+  Filament Color
+</label>
 
-        </label>
+<select
+  id="colorSelect"
+  name="color"
+  required
+>
 
+  <option value="">
+    Select filament type first
+  </option>
 
-        <label>
+</select>
 
-          <input
-            type="radio"
-            name="orderType"
-            value="file"
-          >
 
-          Upload a File
+<!-- =================================================
+     NOTES
+================================================== -->
 
-        </label>
+<label for="notes">
+  Notes
+</label>
 
+<textarea
+  id="notes"
+  name="notes"
+  placeholder="Anything else we should know?"
+></textarea>
 
-        <label>
 
-          <input
-            type="radio"
-            name="orderType"
-            value="idea"
-          >
+<button
+  id="submitButton"
+  class="button"
+  type="submit"
+>
+  Submit Order
+</button>
 
-          I Have an Idea
 
-        </label>
+<div id="orderResult"></div>
 
 
-        <label>
+  </form>
 
-          <input
-            type="radio"
-            name="orderType"
-            value="link"
-          >
+</section>
 
-          Model Link
+<!-- =====================================================
+     TRACK ORDER
+====================================================== -->
 
-        </label>
+<section>
 
-      </div>
+  <h2>Track Your Order</h2>
 
+  <form id="trackForm">
 
-      <!-- GALLERY -->
 
-      <div
-        id="galleryChoice"
-        class="choice-box"
-      >
+<label for="orderNumber">
+  Order Number
+</label>
 
-        <label for="printSelect">
-          Choose a print
-        </label>
+<input
+  id="orderNumber"
+  name="orderNumber"
+  type="text"
+  placeholder="FF-1001"
+  required
+>
 
-        <select
-          id="printSelect"
-          name="printId"
-        >
+<button
+  class="button"
+  type="submit"
+>
+  Track Order
+</button>
 
-          <option value="">
-            Loading prints...
-          </option>
 
-        </select>
+  </form>
 
-      </div>
+  <div id="trackResult"></div>
 
-
-      <!-- FILE -->
-
-      <div
-        id="fileChoice"
-        class="choice-box hidden"
-      >
-
-        <label for="file">
-          Upload your 3D model
-        </label>
-
-        <input
-          id="file"
-          name="file"
-          type="file"
-          accept=".stl,.3mf,.obj,.step,.stp"
-        >
-
-        <p>
-          Maximum file size: 15 MB.
-        </p>
-
-      </div>
-
-
-      <!-- IDEA -->
-
-      <div
-        id="ideaChoice"
-        class="choice-box hidden"
-      >
-
-        <label for="idea">
-          Describe your idea
-        </label>
-
-        <textarea
-          id="idea"
-          name="idea"
-          placeholder="Tell us what you want printed..."
-        ></textarea>
-
-      </div>
-
-
-      <!-- LINK -->
-
-      <div
-        id="linkChoice"
-        class="choice-box hidden"
-      >
-
-        <label for="modelLink">
-          Model link
-        </label>
-
-        <input
-          id="modelLink"
-          name="modelLink"
-          type="url"
-          placeholder="https://..."
-        >
-
-        <p>
-          Paste a link to the 3D model you want printed.
-        </p>
-
-      </div>
-
-
-      <!-- QUANTITY -->
-
-      <label for="quantity">
-        Quantity
-      </label>
-
-      <input
-        id="quantity"
-        name="quantity"
-        type="number"
-        min="1"
-        value="1"
-        required
-      >
-
-
-      <!-- FILAMENT -->
-
-      <label for="typeSelect">
-        Filament Type
-      </label>
-
-      <select
-        id="typeSelect"
-        name="filamentType"
-        required
-      >
-
-        <option value="">
-          Loading filament types...
-        </option>
-
-      </select>
-
-
-      <!-- COLOR -->
-
-      <label for="colorSelect">
-        Filament Color
-      </label>
-
-      <select
-        id="colorSelect"
-        name="color"
-        required
-      >
-
-        <option value="">
-          Select filament type first
-        </option>
-
-      </select>
-
-
-      <!-- NOTES -->
-
-      <label for="notes">
-        Notes
-      </label>
-
-      <textarea
-        id="notes"
-        name="notes"
-        placeholder="Anything else we should know?"
-      ></textarea>
-
-
-      <button
-        class="button"
-        type="submit"
-      >
-
-        Submit Order
-
-      </button>
-
-
-      <div
-        id="orderResult"
-      ></div>
-
-
-    </form>
-
-  </section>
-
-
-  <!-- =====================================================
-       TRACK ORDER
-  ====================================================== -->
-
-  <section>
-
-    <h2>Track Your Order</h2>
-
-    <form id="trackForm">
-
-      <label for="orderNumber">
-        Order Number
-      </label>
-
-      <input
-        id="orderNumber"
-        name="orderNumber"
-        type="text"
-        placeholder="FF-1001"
-        required
-      >
-
-      <button
-        class="button"
-        type="submit"
-      >
-
-        Track Order
-
-      </button>
-
-    </form>
-
-
-    <div id="trackResult"></div>
-
-  </section>
-
+</section>
 
 </main>
 
-
 <script>
 
-
 /* =========================================================
-   GOOGLE APPS SCRIPT
+   GOOGLE APPS SCRIPT URL
 ========================================================= */
 
 const API_URL =
@@ -600,7 +587,7 @@ const API_URL =
 
 
 /* =========================================================
-   SHOP DATA
+   DATA
 ========================================================= */
 
 let shopData = {
@@ -610,7 +597,7 @@ let shopData = {
 
 
 /* =========================================================
-   API FUNCTION
+   API
 ========================================================= */
 
 async function api(action, data = {}) {
@@ -624,22 +611,31 @@ async function api(action, data = {}) {
       JSON.stringify(data)
     );
 
-
   const response =
-    await fetch(url);
-
+    await fetch(url, {
+      method: "GET"
+    });
 
   if (!response.ok) {
-
     throw new Error(
       "Could not connect to the shop server."
     );
-
   }
 
+  const text =
+    await response.text();
 
-  return await response.json();
+  let result;
 
+  try {
+    result = JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      "The shop server returned an invalid response."
+    );
+  }
+
+  return result;
 }
 
 
@@ -670,54 +666,53 @@ async function loadShop() {
       "galleryGrid"
     );
 
-
   try {
 
     const response =
       await api("catalog");
 
-
     if (
+      !response ||
       response.ok === false
     ) {
 
       throw new Error(
-        response.error ||
+        response?.error ||
         "Could not load shop."
       );
 
     }
 
+    shopData = {
+      gallery:
+        Array.isArray(response.gallery)
+          ? response.gallery
+          : [],
 
-    shopData = response;
-
+      inventory:
+        Array.isArray(response.inventory)
+          ? response.inventory
+          : []
+    };
 
     loadGallery();
-
     loadPrints();
-
     loadFilamentTypes();
-
 
   } catch (error) {
 
     gallery.innerHTML =
       "<div class='error-box'>" +
-
-      "<h3>Shop unavailable</h3>" +
-
-      "<p>" +
-
-      escapeHTML(
-        error.message
-      ) +
-
-      "</p>" +
-
+        "<h3>Shop unavailable</h3>" +
+        "<p>" +
+          escapeHTML(error.message) +
+        "</p>" +
       "</div>";
 
-
-    console.error(error);
+    console.error(
+      "SHOP LOAD ERROR:",
+      error
+    );
 
   }
 
@@ -735,7 +730,6 @@ function loadGallery() {
       "galleryGrid"
     );
 
-
   const prints =
     shopData.gallery || [];
 
@@ -746,45 +740,28 @@ function loadGallery() {
 
     gallery.innerHTML =
       "<div>" +
-
-      "<h3>No prints yet</h3>" +
-
-      "<p>Add a print to the Gallery sheet.</p>" +
-
+        "<h3>No prints yet</h3>" +
+        "<p>Add a print to the Gallery sheet.</p>" +
       "</div>";
 
     return;
-
   }
 
 
   gallery.innerHTML =
     prints.map(function(print) {
 
-      let imageHTML;
+      let imageHTML =
+        "<div class='no-image'>3D PRINT</div>";
 
-
-      if (
-        print.imageUrl
-      ) {
+      if (print.imageUrl) {
 
         imageHTML =
           "<img src='" +
-          escapeHTML(
-            print.imageUrl
-          ) +
-          "' alt='" +
-          escapeHTML(
-            print.name
-          ) +
+            escapeHTML(print.imageUrl) +
+            "' alt='" +
+            escapeHTML(print.name) +
           "'>";
-
-      } else {
-
-        imageHTML =
-          "<div class='no-image'>" +
-          "3D PRINT" +
-          "</div>";
 
       }
 
@@ -798,37 +775,23 @@ function loadGallery() {
           "<div class='print-info'>" +
 
             "<h3>" +
-
-            escapeHTML(
-              print.name
-            ) +
-
+              escapeHTML(print.name) +
             "</h3>" +
 
             "<p>" +
-
-            escapeHTML(
-              print.description || ""
-            ) +
-
+              escapeHTML(
+                print.description || ""
+              ) +
             "</p>" +
 
             "<button " +
-
-            "type='button' " +
-
-            "class='button order-print' " +
-
-            "data-id='" +
-
-            escapeHTML(
-              print.id
-            ) +
-
-            "'>" +
-
-            "Order this" +
-
+              "type='button' " +
+              "class='button order-print' " +
+              "data-id='" +
+                escapeHTML(print.id) +
+              "'" +
+            ">" +
+              "Order this" +
             "</button>" +
 
           "</div>" +
@@ -841,9 +804,7 @@ function loadGallery() {
 
 
   document
-    .querySelectorAll(
-      ".order-print"
-    )
+    .querySelectorAll(".order-print")
     .forEach(function(button) {
 
       button.addEventListener(
@@ -855,10 +816,8 @@ function loadGallery() {
               "input[name='orderType'][value='gallery']"
             );
 
-
           galleryRadio.checked =
             true;
-
 
           updateOrderType();
 
@@ -867,7 +826,6 @@ function loadGallery() {
             document.getElementById(
               "printSelect"
             );
-
 
           printSelect.value =
             button.dataset.id;
@@ -888,7 +846,7 @@ function loadGallery() {
 
 
 /* =========================================================
-   LOAD PRINT OPTIONS
+   LOAD PRINT SELECT
 ========================================================= */
 
 function loadPrints() {
@@ -901,7 +859,7 @@ function loadPrints() {
 
   select.innerHTML =
     "<option value=''>" +
-    "Choose a print..." +
+      "Choose a print..." +
     "</option>";
 
 
@@ -913,14 +871,11 @@ function loadPrints() {
           "option"
         );
 
-
       option.value =
-        print.id;
-
+        String(print.id);
 
       option.textContent =
         print.name;
-
 
       select.appendChild(
         option
@@ -951,25 +906,23 @@ function loadFilamentTypes() {
 
       const available =
         String(item.inStock)
+          .trim()
           .toLowerCase() !==
         "false";
 
 
+      const type =
+        String(item.type || "")
+          .trim();
+
+
       if (
-
         available &&
-
-        item.type &&
-
-        !types.includes(
-          item.type
-        )
-
+        type &&
+        !types.includes(type)
       ) {
 
-        types.push(
-          item.type
-        );
+        types.push(type);
 
       }
 
@@ -978,7 +931,7 @@ function loadFilamentTypes() {
 
   select.innerHTML =
     "<option value=''>" +
-    "Choose a type..." +
+      "Choose a type..." +
     "</option>";
 
 
@@ -989,14 +942,11 @@ function loadFilamentTypes() {
         "option"
       );
 
-
     option.value =
       type;
 
-
     option.textContent =
       type;
-
 
     select.appendChild(
       option
@@ -1016,11 +966,10 @@ function loadFilamentTypes() {
 
 function loadColors() {
 
-  const type =
+  const typeSelect =
     document.getElementById(
       "typeSelect"
-    ).value;
-
+    );
 
   const colorSelect =
     document.getElementById(
@@ -1028,13 +977,19 @@ function loadColors() {
     );
 
 
+  const type =
+    String(
+      typeSelect.value || ""
+    ).trim();
+
+
   colorSelect.innerHTML =
     "<option value=''>" +
-    (
-      type
-        ? "Choose a color..."
-        : "Select filament type first"
-    ) +
+      (
+        type
+          ? "Choose a color..."
+          : "Select filament type first"
+      ) +
     "</option>";
 
 
@@ -1051,28 +1006,29 @@ function loadColors() {
 
       const available =
         String(item.inStock)
+          .trim()
           .toLowerCase() !==
         "false";
 
 
+      const itemType =
+        String(item.type || "")
+          .trim();
+
+
+      const color =
+        String(item.color || "")
+          .trim();
+
+
       if (
-
         available &&
-
-        String(item.type).trim() ===
-        String(type).trim() &&
-
-        item.color &&
-
-        !colors.includes(
-          item.color
-        )
-
+        itemType === type &&
+        color &&
+        !colors.includes(color)
       ) {
 
-        colors.push(
-          item.color
-        );
+        colors.push(color);
 
       }
 
@@ -1086,14 +1042,11 @@ function loadColors() {
         "option"
       );
 
-
     option.value =
       color;
 
-
     option.textContent =
       color;
-
 
     colorSelect.appendChild(
       option
@@ -1130,18 +1083,15 @@ function updateOrderType() {
       "galleryChoice"
     );
 
-
   const fileChoice =
     document.getElementById(
       "fileChoice"
     );
 
-
   const ideaChoice =
     document.getElementById(
       "ideaChoice"
     );
-
 
   const linkChoice =
     document.getElementById(
@@ -1154,18 +1104,15 @@ function updateOrderType() {
       "printSelect"
     );
 
-
   const file =
     document.getElementById(
       "file"
     );
 
-
   const idea =
     document.getElementById(
       "idea"
     );
-
 
   const modelLink =
     document.getElementById(
@@ -1173,98 +1120,82 @@ function updateOrderType() {
     );
 
 
-  /* Hide everything */
+  /* -----------------------------------------
+     HIDE ALL
+  ----------------------------------------- */
 
-  galleryChoice.classList.add(
-    "hidden"
-  );
-
-  fileChoice.classList.add(
-    "hidden"
-  );
-
-  ideaChoice.classList.add(
-    "hidden"
-  );
-
-  linkChoice.classList.add(
-    "hidden"
-  );
+  galleryChoice.classList.add("hidden");
+  fileChoice.classList.add("hidden");
+  ideaChoice.classList.add("hidden");
+  linkChoice.classList.add("hidden");
 
 
-  printSelect.required =
-    false;
+  /* -----------------------------------------
+     REMOVE REQUIRED
+  ----------------------------------------- */
 
-  file.required =
-    false;
-
-  idea.required =
-    false;
-
-  modelLink.required =
-    false;
+  printSelect.required = false;
+  file.required = false;
+  idea.required = false;
+  modelLink.required = false;
 
 
-  /* Gallery */
+  /* -----------------------------------------
+     GALLERY
+  ----------------------------------------- */
 
-  if (
-    type === "gallery"
-  ) {
+  if (type === "gallery") {
 
     galleryChoice.classList.remove(
       "hidden"
     );
 
-    printSelect.required =
-      true;
+    printSelect.required = true;
 
   }
 
 
-  /* File */
+  /* -----------------------------------------
+     FILE
+  ----------------------------------------- */
 
-  else if (
-    type === "file"
-  ) {
+  else if (type === "file") {
 
     fileChoice.classList.remove(
       "hidden"
     );
 
-    file.required =
-      true;
+    file.required = true;
 
   }
 
 
-  /* Idea */
+  /* -----------------------------------------
+     IDEA
+  ----------------------------------------- */
 
-  else if (
-    type === "idea"
-  ) {
+  else if (type === "idea") {
 
     ideaChoice.classList.remove(
       "hidden"
     );
 
-    idea.required =
-      true;
+    idea.required = true;
 
   }
 
 
-  /* Link */
+  /* -----------------------------------------
+     LINK
+  ----------------------------------------- */
 
-  else if (
-    type === "link"
-  ) {
+  else if (type === "link") {
 
     linkChoice.classList.remove(
       "hidden"
     );
 
-    modelLink.required =
-      true;
+    modelLink.required = true;
 
   }
 
@@ -1272,7 +1203,7 @@ function updateOrderType() {
 
 
 /* =========================================================
-   FILE → BASE64
+   FILE TO BASE64
 ========================================================= */
 
 function fileToBase64(file) {
@@ -1291,15 +1222,41 @@ function fileToBase64(file) {
             reader.result;
 
 
+          const comma =
+            result.indexOf(",");
+
+
+          if (comma === -1) {
+
+            reject(
+              new Error(
+                "Could not read the file."
+              )
+            );
+
+            return;
+          }
+
+
           resolve(
-            result.split(",")[1]
+            result.substring(
+              comma + 1
+            )
           );
 
         };
 
 
       reader.onerror =
-        reject;
+        function() {
+
+          reject(
+            new Error(
+              "Could not read the file."
+            )
+          );
+
+        };
 
 
       reader.readAsDataURL(
@@ -1340,7 +1297,17 @@ document
   )
   .addEventListener(
     "change",
-    loadColors
+    function() {
+
+      document
+        .getElementById(
+          "colorSelect"
+        )
+        .value = "";
+
+      loadColors();
+
+    }
   );
 
 
@@ -1359,9 +1326,17 @@ document
       event.preventDefault();
 
 
+      const form =
+        this;
+
       const result =
         document.getElementById(
           "orderResult"
+        );
+
+      const submitButton =
+        document.getElementById(
+          "submitButton"
         );
 
 
@@ -1371,24 +1346,198 @@ document
         "Submitting order...";
 
 
+      submitButton.disabled =
+        true;
+
+
       try {
 
         const formData =
-          new FormData(this);
+          new FormData(form);
 
 
         const orderType =
-          formData.get(
-            "orderType"
+          String(
+            formData.get(
+              "orderType"
+            ) || ""
           );
 
 
+        /* -----------------------------------------
+           GET BASIC VALUES
+        ----------------------------------------- */
+
+        const name =
+          String(
+            formData.get("name") || ""
+          ).trim();
+
+
+        const contact =
+          String(
+            formData.get("contact") || ""
+          ).trim();
+
+
+        const filamentType =
+          String(
+            formData.get("filamentType") || ""
+          ).trim();
+
+
+        const color =
+          String(
+            formData.get("color") || ""
+          ).trim();
+
+
+        const quantity =
+          Number(
+            formData.get("quantity") || 1
+          );
+
+
+        if (!name) {
+          throw new Error(
+            "Please enter your name."
+          );
+        }
+
+
+        if (!contact) {
+          throw new Error(
+            "Please enter your contact information."
+          );
+        }
+
+
+        if (!filamentType) {
+          throw new Error(
+            "Please choose a filament type."
+          );
+        }
+
+
+        if (!color) {
+          throw new Error(
+            "Please choose a filament color."
+          );
+        }
+
+
+        if (
+          !Number.isFinite(quantity) ||
+          quantity < 1
+        ) {
+
+          throw new Error(
+            "Please enter a valid quantity."
+          );
+
+        }
+
+
+        /* -----------------------------------------
+           GALLERY PRINT ID
+           
+           IMPORTANT:
+           Only Gallery gets a printId.
+           File / Idea / Link get "".
+        ----------------------------------------- */
+
+        let printId = "";
+
+
+        if (
+          orderType === "gallery"
+        ) {
+
+          printId =
+            String(
+              formData.get(
+                "printId"
+              ) || ""
+            ).trim();
+
+
+          if (!printId) {
+
+            throw new Error(
+              "Please choose a gallery print."
+            );
+
+          }
+
+        }
+
+
+        /* -----------------------------------------
+           IDEA
+        ----------------------------------------- */
+
+        let idea = "";
+
+
+        if (
+          orderType === "idea"
+        ) {
+
+          idea =
+            String(
+              formData.get(
+                "idea"
+              ) || ""
+            ).trim();
+
+
+          if (!idea) {
+
+            throw new Error(
+              "Please describe your idea."
+            );
+
+          }
+
+        }
+
+
+        /* -----------------------------------------
+           LINK
+        ----------------------------------------- */
+
+        let modelLink = "";
+
+
+        if (
+          orderType === "link"
+        ) {
+
+          modelLink =
+            String(
+              formData.get(
+                "modelLink"
+              ) || ""
+            ).trim();
+
+
+          if (!modelLink) {
+
+            throw new Error(
+              "Please enter the model link."
+            );
+
+          }
+
+        }
+
+
+        /* -----------------------------------------
+           FILE
+        ----------------------------------------- */
+
         let file = null;
 
-
-        /* -------------------------------------------------
-           FILE
-        ------------------------------------------------- */
 
         if (
           orderType === "file"
@@ -1451,61 +1600,61 @@ document
         }
 
 
-        /* -------------------------------------------------
+        /* -----------------------------------------
            BUILD ORDER
-        ------------------------------------------------- */
+        ----------------------------------------- */
 
         const order = {
 
           name:
-            formData.get(
-              "name"
-            ),
+            name,
 
           contact:
-            formData.get(
-              "contact"
-            ),
+            contact,
 
           orderType:
             orderType,
 
+          /*
+             THIS IS THE IMPORTANT FIX.
+
+             Gallery:
+               actual gallery ID
+
+             File:
+               empty
+
+             Idea:
+               empty
+
+             Link:
+               empty
+          */
+
           printId:
-            orderType === "gallery"
-              ? formData.get("printId")
-              : "",
+            printId,
 
           quantity:
-            Number(
-              formData.get(
-                "quantity"
-              )
-            ),
+            quantity,
 
           filamentType:
-            formData.get(
-              "filamentType"
-            ),
+            filamentType,
 
           color:
-            formData.get(
-              "color"
-            ),
+            color,
 
           idea:
-            orderType === "idea"
-              ? formData.get("idea")
-              : "",
+            idea,
 
           modelLink:
-            orderType === "link"
-              ? formData.get("modelLink")
-              : "",
+            modelLink,
 
           notes:
-            formData.get(
-              "notes"
-            ),
+            String(
+              formData.get(
+                "notes"
+              ) || ""
+            ).trim(),
 
           file:
             file
@@ -1513,15 +1662,27 @@ document
         };
 
 
-        /* -------------------------------------------------
-           SEND
-        ------------------------------------------------- */
+        console.log(
+          "ORDER BEING SENT:",
+          order
+        );
+
+
+        /* -----------------------------------------
+           SEND TO GOOGLE APPS SCRIPT
+        ----------------------------------------- */
 
         const response =
           await api(
             "createOrder",
             order
           );
+
+
+        console.log(
+          "SERVER RESPONSE:",
+          response
+        );
 
 
         if (
@@ -1539,15 +1700,16 @@ document
         }
 
 
-        /* -------------------------------------------------
+        /* -----------------------------------------
            SUCCESS
-        ------------------------------------------------- */
+        ----------------------------------------- */
 
         result.className =
           "success-message";
 
 
         result.innerHTML =
+
           "<strong>Order submitted!</strong>" +
 
           "<br><br>" +
@@ -1567,12 +1729,14 @@ document
           "Save this number to track your order.";
 
 
-        this.reset();
+        form.reset();
 
 
-        document.querySelector(
-          "input[name='orderType'][value='gallery']"
-        ).checked = true;
+        document
+          .querySelector(
+            "input[name='orderType'][value='gallery']"
+          )
+          .checked = true;
 
 
         updateOrderType();
@@ -1588,13 +1752,19 @@ document
 
 
         result.textContent =
-          error.message;
+          error.message ||
+          "Something went wrong.";
 
 
         console.error(
           "ORDER ERROR:",
           error
         );
+
+      } finally {
+
+        submitButton.disabled =
+          false;
 
       }
 
@@ -1633,26 +1803,40 @@ document
           new FormData(this);
 
 
+        const orderNumber =
+          String(
+            formData.get(
+              "orderNumber"
+            ) || ""
+          ).trim();
+
+
+        if (!orderNumber) {
+
+          throw new Error(
+            "Please enter an order number."
+          );
+
+        }
+
+
         const response =
           await api(
             "track",
             {
-
               orderNumber:
-                formData.get(
-                  "orderNumber"
-                )
-
+                orderNumber
             }
           );
 
 
         if (
+          !response ||
           response.ok === false
         ) {
 
           throw new Error(
-            response.error ||
+            response?.error ||
             "Order not found."
           );
 
@@ -1673,9 +1857,9 @@ document
 
               "<strong>" +
 
-              escapeHTML(
-                order.orderNumber
-              ) +
+                escapeHTML(
+                  order.orderNumber
+                ) +
 
               "</strong>" +
 
@@ -1688,10 +1872,10 @@ document
 
               "<strong>" +
 
-              escapeHTML(
-                order.status ||
-                "New"
-              ) +
+                escapeHTML(
+                  order.status ||
+                  "New"
+                ) +
 
               "</strong>" +
 
@@ -1704,10 +1888,16 @@ document
 
               "<strong>" +
 
-              escapeHTML(
-                order.printName ||
-                "Customer model"
-              ) +
+                escapeHTML(
+                  order.printName ||
+                  (
+                    order.orderType === "idea"
+                      ? "Customer idea"
+                      : order.orderType === "link"
+                        ? "Model link"
+                        : "Customer model"
+                  )
+                ) +
 
               "</strong>" +
 
@@ -1720,9 +1910,10 @@ document
 
               "<strong>" +
 
-              escapeHTML(
-                order.quantity
-              ) +
+                escapeHTML(
+                  order.quantity ||
+                  "1"
+                ) +
 
               "</strong>" +
 
@@ -1735,17 +1926,17 @@ document
 
               "<strong>" +
 
-              escapeHTML(
-                order.filamentType ||
-                ""
-              ) +
+                escapeHTML(
+                  order.filamentType ||
+                  ""
+                ) +
 
-              " / " +
+                " / " +
 
-              escapeHTML(
-                order.color ||
-                ""
-              ) +
+                escapeHTML(
+                  order.color ||
+                  ""
+                ) +
 
               "</strong>" +
 
@@ -1758,13 +1949,13 @@ document
 
               "<strong>" +
 
-              (
-                order.eta
-                  ? escapeHTML(
-                      order.eta
-                    )
-                  : "Not set yet"
-              ) +
+                (
+                  order.eta
+                    ? escapeHTML(
+                        order.eta
+                      )
+                    : "Not set yet"
+                ) +
 
               "</strong>" +
 
@@ -1778,9 +1969,10 @@ document
         result.innerHTML =
           "<div class='error-box'>" +
 
-          escapeHTML(
-            error.message
-          ) +
+            escapeHTML(
+              error.message ||
+              "Could not find that order."
+            ) +
 
           "</div>";
 
@@ -1798,9 +1990,7 @@ updateOrderType();
 
 loadShop();
 
-
 </script>
 
 </body>
-
 </html>
