@@ -804,19 +804,19 @@ MOBILE
 .nav {
 flex-direction: column;
 
-```
+
 padding:
   15px 0;
-```
+
 
 }
 
 .nav nav {
 flex-wrap: wrap;
 
-```
+
 justify-content: center;
-```
+
 
 }
 
@@ -844,9 +844,9 @@ min-width: 0;
 .tracking-row {
 flex-direction: column;
 
-```
+
 gap: 4px;
-```
+
 
 }
 
