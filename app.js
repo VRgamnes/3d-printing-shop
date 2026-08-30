@@ -1,429 +1,591 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
+const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
 let shopData = {
-gallery: [],
-inventory: []
+  gallery: [],
+  inventory: []
 };
 
 async function api(action, data = {}) {
-if (!API_URL || API_URL.includes("PASTE_YOUR")) {
-throw new Error("Google Apps Script URL has not been added.");
-}
+  const url =
+    API_URL +
+    "?action=" +
+    encodeURIComponent(action) +
+    "&data=" +
+    encodeURIComponent(JSON.stringify(data));
 
-const url =
-API_URL +
-"?action=" +
-encodeURIComponent(action) +
-"&data=" +
-encodeURIComponent(JSON.stringify(data));
+  const response = await fetch(url);
 
-const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Could not connect to Google Apps Script.");
+  }
 
-if (!response.ok) {
-throw new Error("The server could not be reached.");
-}
-
-return await response.json();
+  return await response.json();
 }
 
 function escapeHTML(value) {
-return String(value ?? "")
-.replace(/&/g, "&")
-.replace(/</g, "<")
-.replace(/>/g, ">")
-.replace(/"/g, """)
-.replace(/'/g, "'");
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 async function loadShop() {
-const gallery = document.getElementById("galleryGrid");
+  const gallery = document.getElementById("galleryGrid");
 
-try {
-shopData = await api("catalog");
+  if (!gallery) {
+    return;
+  }
 
-```
-if (!shopData.gallery || shopData.gallery.length === 0) {
-  gallery.innerHTML =
-    '<div class="empty">' +
-    '<h3>No prints yet</h3>' +
-    '<p>Add a print to the Gallery sheet in Google Sheets.</p>' +
-    '</div>';
-} else {
-  gallery.innerHTML = shopData.gallery.map(function(print) {
-    const image = print.imageUrl
-      ? '<img src="' +
+  try {
+    const response = await api("catalog");
+
+    if (!response.ok) {
+      throw new Error(response.error || "Could not load shop.");
+    }
+
+    shopData = response;
+
+    loadGallery();
+    loadPrints();
+    loadFilamentTypes();
+
+  } catch (error) {
+    gallery.innerHTML =
+      '<div class="error-box">' +
+      '<h3>Shop unavailable</h3>' +
+      '<p>' +
+      escapeHTML(error.message) +
+      '</p>' +
+      '</div>';
+  }
+}
+
+function loadGallery() {
+  const gallery =
+    document.getElementById("galleryGrid");
+
+  const prints =
+    shopData.gallery || [];
+
+  if (prints.length === 0) {
+    gallery.innerHTML =
+      '<div class="empty">' +
+      '<h3>No prints yet</h3>' +
+      '<p>Add a print to the Gallery sheet.</p>' +
+      '</div>';
+
+    return;
+  }
+
+  gallery.innerHTML = prints.map(function(print) {
+
+    let imageHTML;
+
+    if (print.imageUrl) {
+      imageHTML =
+        '<img src="' +
         escapeHTML(print.imageUrl) +
         '" alt="' +
         escapeHTML(print.name) +
-        '">'
-      : '<div class="no-image">3D PRINT</div>';
+        '">';
+    } else {
+      imageHTML =
+        '<div class="no-image">3D PRINT</div>';
+    }
 
     return (
       '<article class="print-card">' +
-        image +
+
+        imageHTML +
+
         '<div class="print-info">' +
+
           '<h3>' +
-            escapeHTML(print.name) +
+          escapeHTML(print.name) +
           '</h3>' +
+
           '<p>' +
-            escapeHTML(print.description) +
+          escapeHTML(print.description || "") +
           '</p>' +
-          '<button class="button small-button" ' +
-            'data-print-id="' +
-            escapeHTML(print.id) +
-            '">' +
-            'Order this' +
+
+          '<button class="button order-print" ' +
+          'data-id="' +
+          escapeHTML(print.id) +
+          '">' +
+          'Order this' +
           '</button>' +
+
         '</div>' +
+
       '</article>'
     );
+
   }).join("");
 
   document
-    .querySelectorAll("[data-print-id]")
+    .querySelectorAll(".order-print")
     .forEach(function(button) {
-      button.addEventListener("click", function() {
-        selectPrint(button.dataset.printId);
-      });
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          const select =
+            document.getElementById("printSelect");
+
+          if (select) {
+            select.value =
+              button.dataset.id;
+          }
+
+          const order =
+            document.getElementById("order");
+
+          if (order) {
+            order.scrollIntoView({
+              behavior: "smooth"
+            });
+          }
+
+        }
+      );
+
     });
 }
 
-const printSelect =
-  document.getElementById("printSelect");
+function loadPrints() {
+  const select =
+    document.getElementById("printSelect");
 
-printSelect.innerHTML =
-  '<option value="">Choose a print...</option>';
+  if (!select) {
+    return;
+  }
 
-shopData.gallery.forEach(function(print) {
-  const option =
-    document.createElement("option");
+  select.innerHTML =
+    '<option value="">Choose a print...</option>';
 
-  option.value = print.id;
-  option.textContent = print.name;
+  (shopData.gallery || [])
+    .forEach(function(print) {
 
-  printSelect.appendChild(option);
-});
+      const option =
+        document.createElement("option");
 
-updateFilamentTypes();
-```
+      option.value =
+        print.id;
 
-} catch (error) {
-gallery.innerHTML =
-'<div class="error-box">' +
-'<h3>Shop unavailable</h3>' +
-'<p>' +
-escapeHTML(error.message) +
-'</p>' +
-'</div>';
-}
+      option.textContent =
+        print.name;
+
+      select.appendChild(option);
+
+    });
 }
 
-function selectPrint(id) {
-const select =
-document.getElementById("printSelect");
+function loadFilamentTypes() {
+  const select =
+    document.getElementById("typeSelect");
 
-select.value = id;
+  if (!select) {
+    return;
+  }
 
-document
-.getElementById("order")
-.scrollIntoView({
-behavior: "smooth"
-});
+  const types = [];
+
+  (shopData.inventory || [])
+    .forEach(function(item) {
+
+      const available =
+        String(item.inStock)
+          .toLowerCase() !== "false";
+
+      if (
+        available &&
+        item.type &&
+        !types.includes(item.type)
+      ) {
+        types.push(item.type);
+      }
+
+    });
+
+  select.innerHTML =
+    '<option value="">Choose a type...</option>';
+
+  types.forEach(function(type) {
+
+    const option =
+      document.createElement("option");
+
+    option.value = type;
+    option.textContent = type;
+
+    select.appendChild(option);
+
+  });
+
+  loadColors();
 }
 
-function updateFilamentTypes() {
-const typeSelect =
-document.getElementById("typeSelect");
+function loadColors() {
+  const typeSelect =
+    document.getElementById("typeSelect");
 
-const types = [
-...new Set(
-shopData.inventory
-.filter(function(item) {
-return String(item.inStock).toLowerCase() !== "false";
-})
-.map(function(item) {
-return item.type;
-})
-)
-];
+  const colorSelect =
+    document.getElementById("colorSelect");
 
-typeSelect.innerHTML =
-'<option value="">Choose a type...</option>';
+  if (!typeSelect || !colorSelect) {
+    return;
+  }
 
-types.forEach(function(type) {
-const option =
-document.createElement("option");
+  const selectedType =
+    typeSelect.value;
 
-```
-option.value = type;
-option.textContent = type;
+  colorSelect.innerHTML =
+    '<option value="">Choose a color...</option>';
 
-typeSelect.appendChild(option);
-```
+  if (!selectedType) {
+    return;
+  }
 
-});
+  const colors = [];
 
-updateColors();
-}
+  (shopData.inventory || [])
+    .forEach(function(item) {
 
-function updateColors() {
-const type =
-document.getElementById("typeSelect").value;
+      const available =
+        String(item.inStock)
+          .toLowerCase() !== "false";
 
-const colorSelect =
-document.getElementById("colorSelect");
+      if (
+        available &&
+        item.type === selectedType &&
+        item.color &&
+        !colors.includes(item.color)
+      ) {
+        colors.push(item.color);
+      }
 
-const colors = [
-...new Set(
-shopData.inventory
-.filter(function(item) {
-return (
-item.type === type &&
-String(item.inStock).toLowerCase() !== "false"
-);
-})
-.map(function(item) {
-return item.color;
-})
-)
-];
+    });
 
-colorSelect.innerHTML =
-'<option value="">Choose a color...</option>';
+  colors.forEach(function(color) {
 
-colors.forEach(function(color) {
-const option =
-document.createElement("option");
+    const option =
+      document.createElement("option");
 
-```
-option.value = color;
-option.textContent = color;
+    option.value = color;
+    option.textContent = color;
 
-colorSelect.appendChild(option);
-```
+    colorSelect.appendChild(option);
 
-});
+  });
 }
 
 function fileToBase64(file) {
-return new Promise(function(resolve, reject) {
-const reader = new FileReader();
+  return new Promise(function(resolve, reject) {
 
-```
-reader.onload = function() {
-  const result = reader.result;
-  resolve(result.split(",")[1]);
-};
+    const reader =
+      new FileReader();
 
-reader.onerror = reject;
+    reader.onload = function() {
 
-reader.readAsDataURL(file);
-```
+      const result =
+        reader.result;
 
-});
-}
+      const base64 =
+        result.split(",")[1];
 
-document
-.getElementById("orderForm")
-.addEventListener("submit", async function(event) {
+      resolve(base64);
 
-```
-event.preventDefault();
-
-const result =
-  document.getElementById("orderResult");
-
-result.className = "message";
-result.textContent =
-  "Submitting your order...";
-
-try {
-  const formData =
-    new FormData(this);
-
-  const fileInput =
-    document.getElementById("file");
-
-  let file = null;
-
-  if (fileInput.files.length > 0) {
-    const selectedFile =
-      fileInput.files[0];
-
-    if (selectedFile.size > 15 * 1024 * 1024) {
-      throw new Error(
-        "Your file is too large. Please keep it under 15 MB."
-      );
-    }
-
-    const base64 =
-      await fileToBase64(selectedFile);
-
-    file = {
-      name: selectedFile.name,
-      type:
-        selectedFile.type ||
-        "application/octet-stream",
-      base64: base64
     };
-  }
 
-  const order = {
-    name: formData.get("name"),
-    contact: formData.get("contact"),
-    printId: formData.get("printId"),
-    quantity:
-      Number(formData.get("quantity")),
-    filamentType:
-      formData.get("filamentType"),
-    color:
-      formData.get("color"),
-    notes:
-      formData.get("notes"),
-    file: file
-  };
+    reader.onerror = reject;
 
-  const response =
-    await api("createOrder", order);
+    reader.readAsDataURL(file);
 
-  if (!response.ok) {
-    throw new Error(
-      response.error ||
-      "The order could not be submitted."
-    );
-  }
-
-  result.className =
-    "success-message";
-
-  result.innerHTML =
-    "<strong>Order submitted!</strong>" +
-    "<br><br>" +
-    "Your order number is: " +
-    "<strong>" +
-    escapeHTML(response.orderNumber) +
-    "</strong>" +
-    "<br><br>" +
-    "Save this number so you can track your order.";
-
-  this.reset();
-
-  updateFilamentTypes();
-
-} catch (error) {
-  result.className =
-    "error-message";
-
-  result.textContent =
-    error.message;
+  });
 }
-```
 
-});
+const typeSelect =
+  document.getElementById("typeSelect");
 
-document
-.getElementById("trackForm")
-.addEventListener("submit", async function(event) {
+if (typeSelect) {
 
-```
-event.preventDefault();
+  typeSelect.addEventListener(
+    "change",
+    loadColors
+  );
 
-const result =
-  document.getElementById("trackResult");
+}
 
-result.innerHTML =
-  "<p>Looking up order...</p>";
+const orderForm =
+  document.getElementById("orderForm");
 
-try {
-  const orderNumber =
-    new FormData(this).get("orderNumber");
+if (orderForm) {
 
-  const response =
-    await api(
-      "track",
-      {
-        orderNumber: orderNumber
-      }
-    );
+  orderForm.addEventListener(
+    "submit",
+    async function(event) {
 
-  if (!response.ok) {
-    throw new Error(
-      response.error ||
-      "Order not found."
-    );
-  }
+      event.preventDefault();
 
-  const order =
-    response.order;
+      const result =
+        document.getElementById("orderResult");
 
-  result.innerHTML =
-    '<div class="tracking-card">' +
+      result.textContent =
+        "Submitting order...";
 
-      '<div class="tracking-number">' +
-        '<span>Order</span>' +
-        '<strong>' +
-          escapeHTML(order.orderNumber) +
-        '</strong>' +
-      '</div>' +
+      try {
 
-      '<div class="tracking-status">' +
-        '<span>Status</span>' +
-        '<strong>' +
-          escapeHTML(order.status) +
-        '</strong>' +
-      '</div>' +
+        const formData =
+          new FormData(orderForm);
 
-      '<div class="tracking-row">' +
-        '<span>Print</span>' +
-        '<strong>' +
-          escapeHTML(order.printName) +
-        '</strong>' +
-      '</div>' +
+        let file = null;
 
-      '<div class="tracking-row">' +
-        '<span>Quantity</span>' +
-        '<strong>' +
-          escapeHTML(order.quantity) +
-        '</strong>' +
-      '</div>' +
+        const fileInput =
+          document.getElementById("file");
 
-      '<div class="tracking-row">' +
-        '<span>Filament</span>' +
-        '<strong>' +
-          escapeHTML(order.filamentType) +
-          " / " +
-          escapeHTML(order.color) +
-        '</strong>' +
-      '</div>' +
+        if (
+          fileInput &&
+          fileInput.files.length > 0
+        ) {
 
-      '<div class="tracking-row">' +
-        '<span>Estimated completion</span>' +
-        '<strong>' +
-          (
-            order.eta
-              ? escapeHTML(order.eta)
-              : "Not set yet"
+          const selectedFile =
+            fileInput.files[0];
+
+          if (
+            selectedFile.size >
+            15 * 1024 * 1024
+          ) {
+
+            throw new Error(
+              "File must be smaller than 15 MB."
+            );
+
+          }
+
+          const base64 =
+            await fileToBase64(
+              selectedFile
+            );
+
+          file = {
+            name:
+              selectedFile.name,
+
+            type:
+              selectedFile.type ||
+              "application/octet-stream",
+
+            base64:
+              base64
+          };
+
+        }
+
+        const order = {
+
+          name:
+            formData.get("name"),
+
+          contact:
+            formData.get("contact"),
+
+          printId:
+            formData.get("printId"),
+
+          quantity:
+            Number(
+              formData.get("quantity")
+            ),
+
+          filamentType:
+            formData.get("filamentType"),
+
+          color:
+            formData.get("color"),
+
+          notes:
+            formData.get("notes"),
+
+          file:
+            file
+
+        };
+
+        const response =
+          await api(
+            "createOrder",
+            order
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            response.error ||
+            "Order could not be submitted."
+          );
+
+        }
+
+        result.className =
+          "success-message";
+
+        result.innerHTML =
+          "<strong>Order submitted!</strong>" +
+          "<br><br>" +
+          "Your order number is " +
+          "<strong>" +
+          escapeHTML(
+            response.orderNumber
           ) +
-        '</strong>' +
-      '</div>' +
+          "</strong>" +
+          "<br><br>" +
+          "Save this number to track your order.";
 
-    '</div>';
+        orderForm.reset();
 
-} catch (error) {
-  result.innerHTML =
-    '<div class="error-box">' +
-    escapeHTML(error.message) +
-    '</div>';
+        loadFilamentTypes();
+
+      } catch (error) {
+
+        result.className =
+          "error-message";
+
+        result.textContent =
+          error.message;
+
+      }
+
+    }
+  );
+
 }
 
+const trackForm =
+  document.getElementById("trackForm");
 
-});
+if (trackForm) {
 
-document
-.getElementById("typeSelect")
-.addEventListener(
-"change",
-updateColors
-);
+  trackForm.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+      const result =
+        document.getElementById("trackResult");
+
+      result.innerHTML =
+        "<p>Looking up order...</p>";
+
+      try {
+
+        const formData =
+          new FormData(trackForm);
+
+        const orderNumber =
+          formData.get("orderNumber");
+
+        const response =
+          await api(
+            "track",
+            {
+              orderNumber:
+                orderNumber
+            }
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            response.error ||
+            "Order not found."
+          );
+
+        }
+
+        const order =
+          response.order;
+
+        result.innerHTML =
+          '<div class="tracking-card">' +
+
+            '<div class="tracking-number">' +
+              '<span>Order</span>' +
+              '<strong>' +
+              escapeHTML(
+                order.orderNumber
+              ) +
+              '</strong>' +
+            '</div>' +
+
+            '<div class="tracking-status">' +
+              '<span>Status</span>' +
+              '<strong>' +
+              escapeHTML(
+                order.status
+              ) +
+              '</strong>' +
+            '</div>' +
+
+            '<div class="tracking-row">' +
+              '<span>Print</span>' +
+              '<strong>' +
+              escapeHTML(
+                order.printName
+              ) +
+              '</strong>' +
+            '</div>' +
+
+            '<div class="tracking-row">' +
+              '<span>Quantity</span>' +
+              '<strong>' +
+              escapeHTML(
+                order.quantity
+              ) +
+              '</strong>' +
+            '</div>' +
+
+            '<div class="tracking-row">' +
+              '<span>Filament</span>' +
+              '<strong>' +
+              escapeHTML(
+                order.filamentType
+              ) +
+              " / " +
+              escapeHTML(
+                order.color
+              ) +
+              '</strong>' +
+            '</div>' +
+
+            '<div class="tracking-row">' +
+              '<span>Estimated completion</span>' +
+              '<strong>' +
+              (
+                order.eta
+                  ? escapeHTML(order.eta)
+                  : "Not set yet"
+              ) +
+              '</strong>' +
+            '</div>' +
+
+          '</div>';
+
+      } catch (error) {
+
+        result.innerHTML =
+          '<div class="error-box">' +
+          escapeHTML(error.message) +
+          '</div>';
+
+      }
+
+    }
+  );
+
+}
 
 loadShop();
