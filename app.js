@@ -41,9 +41,8 @@ async function loadShop() {
   try {
     const response = await api("catalog");
 
-    if (!response.ok) {
-      throw new Error(response.error || "Could not load shop.");
-    }
+ 
+  
 
     shopData = response;
 
