@@ -1,920 +1,493 @@
 const API_URL =
-"https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
-
-let staffToken = "";
-
-/* =========================
-API
-========================= */
-
-async function api(
-action,
-data = {}
-) {
-
-if (
-!API_URL ||
-API_URL.includes("PASTE_YOUR")
-) {
+  "https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
 
 
-throw new Error(
-  "Google Apps Script URL has not been added."
-);
+let loggedIn = false;
 
 
-}
+async function api(action, data) {
 
-const url =
-API_URL +
-"?action=" +
-encodeURIComponent(action) +
-"&data=" +
-encodeURIComponent(
-JSON.stringify({
-...data,
-token: staffToken
-})
-);
-
-const response =
-await fetch(url);
-
-if (!response.ok) {
+  if (data === undefined) {
+    data = {};
+  }
 
 
-throw new Error(
-  "Could not connect to the server."
-);
-
-
-}
-
-return await response.json();
-
-}
-
-/* =========================
-HTML SAFETY
-========================= */
-
-function escapeHTML(value) {
-
-return String(value ?? "")
-.replace(/&/g, "&")
-.replace(/</g, "<")
-.replace(/>/g, ">")
-.replace(/"/g, """)
-.replace(/'/g, "'");
-
-}
-
-/* =========================
-LOGIN
-========================= */
-
-document
-.getElementById("loginForm")
-.addEventListener(
-"submit",
-async function(event) {
-
-
-  event.preventDefault();
-
-
-  const result =
-    document.getElementById(
-      "loginResult"
+  const url =
+    API_URL +
+    "?action=" +
+    encodeURIComponent(action) +
+    "&data=" +
+    encodeURIComponent(
+      JSON.stringify(data)
     );
 
 
-  result.textContent =
-    "Signing in...";
+  const response =
+    await fetch(url);
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Could not connect to Google Apps Script."
+    );
+
+  }
+
+
+  return await response.json();
+
+}
+
+
+function escapeHTML(value) {
+
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+document
+  .getElementById("loginForm")
+  .addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      const password =
+        document.getElementById(
+          "password"
+        ).value;
+
+
+      const result =
+        document.getElementById(
+          "loginResult"
+        );
+
+
+      result.textContent =
+        "Logging in...";
+
+
+      try {
+
+        const response =
+          await api(
+            "login",
+            {
+              password:
+                password
+            }
+          );
+
+
+        if (
+          response.ok === false
+        ) {
+
+          throw new Error(
+            response.error ||
+            "Incorrect password."
+          );
+
+        }
+
+
+        loggedIn = true;
+
+
+        document
+          .getElementById(
+            "loginScreen"
+          )
+          .style.display =
+          "none";
+
+
+        document
+          .getElementById(
+            "dashboard"
+          )
+          .style.display =
+          "block";
+
+
+        loadDashboard();
+
+
+      } catch (error) {
+
+        result.textContent =
+          error.message;
+
+      }
+
+    }
+  );
+
+
+async function loadDashboard() {
+
+  await loadOrders();
+  await loadInventory();
+  await loadGallery();
+
+}
+
+
+async function loadOrders() {
+
+  const container =
+    document.getElementById(
+      "orders"
+    );
+
+
+  container.innerHTML =
+    "Loading orders...";
 
 
   try {
 
-    const password =
-      document.getElementById(
-        "password"
-      ).value;
-
-
     const response =
       await api(
-        "adminLogin",
-        {
-          password
-        }
+        "orders"
       );
 
 
-    if (!response.ok) {
+    if (
+      response.ok === false
+    ) {
 
       throw new Error(
         response.error ||
-        "Incorrect password."
+        "Could not load orders."
       );
 
     }
 
 
-    staffToken =
-      response.token;
+    const orders =
+      response.orders ||
+      [];
 
 
-    sessionStorage.setItem(
-      "staffToken",
-      staffToken
-    );
+    if (orders.length === 0) {
+
+      container.innerHTML =
+        "<p>No orders yet.</p>";
+
+      return;
+
+    }
 
 
-    document
-      .getElementById(
-        "loginSection"
-      )
-      .hidden = true;
+    container.innerHTML =
+      orders.map(function(order) {
 
+        return (
 
-    document
-      .getElementById(
-        "staffPanel"
-      )
-      .hidden = false;
+          "<div class='staff-card'>" +
 
+            "<h3>" +
+            escapeHTML(
+              order.orderNumber
+            ) +
+            "</h3>" +
 
-    loadDashboard();
+            "<p>" +
+            "<strong>Customer:</strong> " +
+            escapeHTML(
+              order.name
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>Print:</strong> " +
+            escapeHTML(
+              order.printName ||
+              "Customer model"
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>Quantity:</strong> " +
+            escapeHTML(
+              order.quantity
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>Filament:</strong> " +
+            escapeHTML(
+              order.filamentType
+            ) +
+            " / " +
+            escapeHTML(
+              order.color
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>Status:</strong> " +
+            escapeHTML(
+              order.status
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>ETA:</strong> " +
+            escapeHTML(
+              order.eta ||
+              "Not set"
+            ) +
+            "</p>" +
+
+          "</div>"
+
+        );
+
+      }).join("");
 
 
   } catch (error) {
 
-    result.className =
-      "error-message";
-
-    result.textContent =
-      error.message;
+    container.innerHTML =
+      "<div class='error-box'>" +
+      escapeHTML(
+        error.message
+      ) +
+      "</div>";
 
   }
 
 }
 
 
-);
-
-/* =========================
-RESTORE LOGIN
-========================= */
-
-staffToken =
-sessionStorage.getItem(
-"staffToken"
-) || "";
-
-if (staffToken) {
-
-document
-.getElementById(
-"loginSection"
-)
-.hidden = true;
-
-document
-.getElementById(
-"staffPanel"
-)
-.hidden = false;
-
-loadDashboard();
-
-}
-
-/* =========================
-DASHBOARD
-========================= */
-
-async function loadDashboard() {
-
-await Promise.all([
-loadOrders(),
-loadInventory()
-]);
-
-}
-
-/* =========================
-ORDERS
-========================= */
-
-async function loadOrders() {
-
-const container =
-document.getElementById(
-"ordersList"
-);
-
-container.innerHTML =
-'<div class="loading">Loading orders...</div>';
-
-try {
-
-
-const response =
-  await api(
-    "adminOrders"
-  );
-
-
-if (!response.ok) {
-
-  throw new Error(
-    response.error
-  );
-
-}
-
-
-const orders =
-  response.orders || [];
-
-
-updateStats(orders);
-
-
-if (!orders.length) {
-
-  container.innerHTML = `
-    <div class="empty">
-      <h3>No orders yet</h3>
-      <p>
-        Customer orders will appear here.
-      </p>
-    </div>
-  `;
-
-  return;
-
-}
-
-
-container.innerHTML =
-  orders.map(
-    createOrderCard
-  ).join("");
-
-
-document
-  .querySelectorAll(
-    ".save-order"
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () =>
-        saveOrder(
-          button.dataset.order
-        )
-    );
-
-  });
-
-
-} catch (error) {
-
-
-container.innerHTML = `
-  <div class="error-box">
-    ${escapeHTML(
-      error.message
-    )}
-  </div>
-`;
-
-}
-
-}
-
-/* =========================
-ORDER CARD
-========================= */
-
-function createOrderCard(order) {
-
-const id =
-escapeHTML(
-order.orderNumber
-);
-
-return `
-
-
-<article class="order-card">
-
-  <div class="order-main">
-
-    <div>
-
-      <div class="order-number">
-        ${id}
-      </div>
-
-      <h3>
-        ${escapeHTML(
-          order.printName
-        )}
-      </h3>
-
-      <p class="customer-name">
-        ${escapeHTML(
-          order.name
-        )}
-      </p>
-
-    </div>
-
-
-    <div class="order-details">
-
-      <div>
-        <span>Contact</span>
-        <strong>
-          ${escapeHTML(
-            order.contact
-          )}
-        </strong>
-      </div>
-
-
-      <div>
-        <span>Quantity</span>
-        <strong>
-          ${escapeHTML(
-            order.quantity
-          )}
-        </strong>
-      </div>
-
-
-      <div>
-        <span>Filament</span>
-        <strong>
-          ${escapeHTML(
-            order.filamentType
-          )}
-          /
-          ${escapeHTML(
-            order.color
-          )}
-        </strong>
-      </div>
-
-
-      <div>
-        <span>Notes</span>
-        <strong>
-          ${
-            order.notes
-              ? escapeHTML(
-                  order.notes
-                )
-              : "None"
-          }
-        </strong>
-      </div>
-
-    </div>
-
-
-    <div class="file-area">
-
-      ${
-        order.fileUrl
-
-          ? `
-            <a
-              class="button secondary"
-              href="${escapeHTML(
-                order.fileUrl
-              )}"
-              target="_blank"
-              rel="noopener"
-            >
-              Open 3D File
-            </a>
-          `
-
-          : `
-            <span class="help">
-              No file uploaded
-            </span>
-          `
-      }
-
-    </div>
-
-  </div>
-
-
-  <div class="order-controls">
-
-    <div class="form-group">
-
-      <label>Status</label>
-
-      <select
-        id="status-${id}"
-      >
-
-        ${statusOption(
-          "New",
-          order.status
-        )}
-
-        ${statusOption(
-          "Approved",
-          order.status
-        )}
-
-        ${statusOption(
-          "Printing",
-          order.status
-        )}
-
-        ${statusOption(
-          "Ready",
-          order.status
-        )}
-
-        ${statusOption(
-          "Completed",
-          order.status
-        )}
-
-        ${statusOption(
-          "Cancelled",
-          order.status
-        )}
-
-      </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>ETA</label>
-
-      <input
-        id="eta-${id}"
-        value="${escapeHTML(
-          order.eta || ""
-        )}"
-        placeholder="September 5"
-      >
-
-    </div>
-
-
-    <button
-      class="button save-order"
-      data-order="${id}"
-    >
-      Save changes
-    </button>
-
-  </div>
-
-</article>
-
-
-`;
-
-}
-
-/* =========================
-STATUS OPTION
-========================= */
-
-function statusOption(
-value,
-current
-) {
-
-return `     <option
-      value="${value}"
-      ${value === current
-        ? "selected"
-        : ""}     >
-      ${value}     </option>
-  `;
-
-}
-
-/* =========================
-SAVE ORDER
-========================= */
-
-async function saveOrder(
-orderNumber
-) {
-
-const status =
-document.getElementById(
-"status-" + orderNumber
-).value;
-
-const eta =
-document.getElementById(
-"eta-" + orderNumber
-).value;
-
-try {
-
-
-const response =
-  await api(
-    "updateOrder",
-    {
-      orderNumber,
-      status,
-      eta
-    }
-  );
-
-
-if (!response.ok) {
-
-  throw new Error(
-    response.error
-  );
-
-}
-
-
-alert(
-  "Order updated."
-);
-
-
-loadOrders();
-
-
-} catch (error) {
-
-
-alert(
-  error.message
-);
-
-
-}
-
-}
-
-/* =========================
-STATS
-========================= */
-
-function updateStats(
-orders
-) {
-
-const open =
-orders.filter(
-order =>
-order.status !==
-"Completed" &&
-order.status !==
-"Cancelled"
-).length;
-
-const completed =
-orders.filter(
-order =>
-order.status ===
-"Completed"
-).length;
-
-document.getElementById(
-"stats"
-).innerHTML = `
-
-
-<div class="stat-card">
-
-  <span>
-    TOTAL ORDERS
-  </span>
-
-  <strong>
-    ${orders.length}
-  </strong>
-
-</div>
-
-
-<div class="stat-card">
-
-  <span>
-    OPEN ORDERS
-  </span>
-
-  <strong>
-    ${open}
-  </strong>
-
-</div>
-
-
-<div class="stat-card">
-
-  <span>
-    COMPLETED
-  </span>
-
-  <strong>
-    ${completed}
-  </strong>
-
-</div>
-
-
-`;
-
-}
-
-/* =========================
-INVENTORY
-========================= */
-
 async function loadInventory() {
 
-const container =
-document.getElementById(
-"inventoryList"
-);
-
-try {
+  const container =
+    document.getElementById(
+      "inventory"
+    );
 
 
-const response =
-  await api(
-    "adminInventory"
-  );
+  container.innerHTML =
+    "Loading inventory...";
 
 
-if (!response.ok) {
+  try {
 
-  throw new Error(
-    response.error
-  );
-
-}
-
-
-const inventory =
-  response.inventory || [];
+    const response =
+      await api(
+        "catalog"
+      );
 
 
-if (!inventory.length) {
-
-  container.innerHTML = `
-    <div class="empty">
-      No filament has been added.
-    </div>
-  `;
-
-  return;
-
-}
+    const inventory =
+      response.inventory ||
+      [];
 
 
-container.innerHTML =
-  inventory
-    .map(
-      item => {
+    if (inventory.length === 0) {
 
-        const inStock =
+      container.innerHTML =
+        "<p>No inventory yet.</p>";
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      inventory.map(function(item) {
+
+        const available =
           String(
             item.inStock
           ).toLowerCase() !==
           "false";
 
 
-        return `
+        return (
 
-          <div
-            class="inventory-row"
-          >
+          "<div class='staff-card'>" +
 
-            <div>
+            "<h3>" +
+            escapeHTML(
+              item.type
+            ) +
+            "</h3>" +
 
-              <strong>
-                ${escapeHTML(
-                  item.type
-                )}
-              </strong>
+            "<p>" +
+            "<strong>Color:</strong> " +
+            escapeHTML(
+              item.color
+            ) +
+            "</p>" +
 
-              <span>
-                ${escapeHTML(
-                  item.color
-                )}
-              </span>
+            "<p>" +
+            "<strong>In stock:</strong> " +
+            (
+              available
+                ? "Yes"
+                : "No"
+            ) +
+            "</p>" +
 
-            </div>
+          "</div>"
 
-
-            <button
-              class="stock-button
-                ${
-                  inStock
-                    ? "in-stock"
-                    : "out-stock"
-                }"
-              data-type="${escapeHTML(
-                item.type
-              )}"
-              data-color="${escapeHTML(
-                item.color
-              )}"
-              data-stock="${inStock}"
-            >
-
-              ${
-                inStock
-                  ? "In stock"
-                  : "Out of stock"
-              }
-
-            </button>
-
-          </div>
-
-        `;
-
-      }
-    )
-    .join("");
-
-
-document
-  .querySelectorAll(
-    ".stock-button"
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      async () => {
-
-        const current =
-          button.dataset.stock ===
-          "true";
-
-
-        await api(
-          "setInventory",
-          {
-            type:
-              button.dataset.type,
-
-            color:
-              button.dataset.color,
-
-            inStock:
-              !current
-          }
         );
 
-
-        loadInventory();
-
-      }
-    );
-
-  });
+      }).join("");
 
 
-} catch (error) {
+  } catch (error) {
 
-
-container.innerHTML = `
-  <div class="error-box">
-    ${escapeHTML(
-      error.message
-    )}
-  </div>
-`;
-
-
-}
-
-}
-
-/* =========================
-ADD INVENTORY
-========================= */
-
-document
-.getElementById(
-"addInventory"
-)
-.addEventListener(
-"click",
-async () => {
-
-
-  const type =
-    document
-      .getElementById(
-        "newFilamentType"
-      )
-      .value
-      .trim();
-
-
-  const color =
-    document
-      .getElementById(
-        "newFilamentColor"
-      )
-      .value
-      .trim();
-
-
-  if (!type || !color) {
-
-    alert(
-      "Enter both a filament type and color."
-    );
-
-    return;
+    container.innerHTML =
+      "<div class='error-box'>" +
+      escapeHTML(
+        error.message
+      ) +
+      "</div>";
 
   }
+
+}
+
+
+async function loadGallery() {
+
+  const container =
+    document.getElementById(
+      "staffGallery"
+    );
+
+
+  container.innerHTML =
+    "Loading gallery...";
 
 
   try {
 
     const response =
       await api(
-        "setInventory",
-        {
-          type,
-          color,
-          inStock: true
-        }
+        "catalog"
       );
 
 
-    if (!response.ok) {
+    const gallery =
+      response.gallery ||
+      [];
 
-      throw new Error(
-        response.error
-      );
+
+    if (gallery.length === 0) {
+
+      container.innerHTML =
+        "<p>No gallery prints yet.</p>";
+
+      return;
 
     }
 
 
-    document
-      .getElementById(
-        "newFilamentType"
-      )
-      .value = "";
+    container.innerHTML =
+      gallery.map(function(print) {
 
+        return (
 
-    document
-      .getElementById(
-        "newFilamentColor"
-      )
-      .value = "";
+          "<div class='staff-card'>" +
 
+            "<h3>" +
+            escapeHTML(
+              print.name
+            ) +
+            "</h3>" +
 
-    loadInventory();
+            "<p>" +
+            escapeHTML(
+              print.description
+            ) +
+            "</p>" +
+
+            "<p>" +
+            "<strong>Active:</strong> " +
+            (
+              print.active
+                ? "Yes"
+                : "No"
+            ) +
+            "</p>" +
+
+          "</div>"
+
+        );
+
+      }).join("");
 
 
   } catch (error) {
 
-    alert(
-      error.message
-    );
+    container.innerHTML =
+      "<div class='error-box'>" +
+      escapeHTML(
+        error.message
+      ) +
+      "</div>";
 
   }
 
 }
 
 
-);
+document
+  .getElementById(
+    "refreshButton"
+  )
+  .addEventListener(
+    "click",
+    loadDashboard
+  );
 
-/* =========================
-REFRESH
-========================= */
 
 document
-.getElementById(
-"refreshOrders"
-)
-.addEventListener(
-"click",
-loadDashboard
-);
+  .getElementById(
+    "logoutButton"
+  )
+  .addEventListener(
+    "click",
+    function() {
+
+      loggedIn = false;
+
+      document
+        .getElementById(
+          "dashboard"
+        )
+        .style.display =
+        "none";
+
+
+      document
+        .getElementById(
+          "loginScreen"
+        )
+        .style.display =
+        "block";
+
+
+      document
+        .getElementById(
+          "password"
+        ).value = "";
+
+    }
+  );
