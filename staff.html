@@ -7,13 +7,15 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <title>Staff - Friends & Family Prints</title>
+  <title>Staff Panel</title>
 
   <link
     rel="stylesheet"
-    href="style.css">
+    href="style.css"
+  >
 
 </head>
 
@@ -22,197 +24,160 @@
 
 <header class="site-header">
 
-  <div class="container nav">
+  <div class="container header-inner">
 
-    <a
-      class="logo"
-      href="index.html">
+    <h1>Print Shop Staff</h1>
 
-      Friends & Family Prints
-
-    </a>
-
-    <nav>
-
-      <a href="index.html">
-        Customer Site
-      </a>
-
-    </nav>
+    <button
+      id="logoutButton"
+      class="button"
+      style="display:none"
+    >
+      Log out
+    </button>
 
   </div>
 
 </header>
 
 
-<main>
-
-<section class="section">
-
-  <div class="container">
-
-    <div
-      id="loginScreen"
-      class="staff-login">
-
-      <div class="section-heading">
-
-        <p class="eyebrow">
-          STAFF
-        </p>
-
-        <h1>
-          Staff Login
-        </h1>
-
-      </div>
+<main class="container">
 
 
-      <form
-        id="loginForm"
-        class="form">
+  <!-- LOGIN -->
 
-        <label>
+  <section
+    id="loginSection"
+    class="panel"
+  >
 
-          Staff Password
+    <h2>Staff Login</h2>
 
-          <input
-            id="password"
-            type="password"
-            required
-            placeholder="Password">
+    <form id="loginForm">
 
-        </label>
+      <input
+        type="password"
+        id="password"
+        placeholder="Staff password"
+        required
+      >
 
+      <button
+        class="button"
+        type="submit"
+      >
+        Sign in
+      </button>
+
+    </form>
+
+    <div id="loginResult"></div>
+
+  </section>
+
+
+  <!-- DASHBOARD -->
+
+  <section
+    id="dashboard"
+    style="display:none"
+  >
+
+
+    <!-- ORDERS -->
+
+    <div class="panel">
+
+      <h2>Orders</h2>
+
+      <button
+        class="button"
+        id="refreshOrders"
+      >
+        Refresh orders
+      </button>
+
+      <div id="ordersList"></div>
+
+    </div>
+
+
+    <!-- INVENTORY -->
+
+    <div class="panel">
+
+      <h2>Inventory</h2>
+
+      <form id="inventoryForm">
+
+        <input
+          id="inventoryType"
+          placeholder="Filament type"
+          required
+        >
+
+        <input
+          id="inventoryColor"
+          placeholder="Color"
+          required
+        >
 
         <button
+          class="button"
           type="submit"
-          class="button">
-
-          Login
-
+        >
+          Add filament
         </button>
-
-
-        <div
-          id="loginResult"
-          class="message">
-        </div>
 
       </form>
 
-    </div>
 
-
-    <div
-      id="dashboard"
-      style="display:none">
-
-      <div class="section-heading">
-
-        <p class="eyebrow">
-          STAFF PANEL
-        </p>
-
-        <h1>
-          Dashboard
-        </h1>
-
-      </div>
-
-
-      <div class="staff-actions">
-
-        <button
-          id="refreshButton"
-          class="button">
-
-          Refresh
-
-        </button>
-
-
-        <button
-          id="logoutButton"
-          class="button secondary-button">
-
-          Logout
-
-        </button>
-
-      </div>
-
-
-      <section class="staff-section">
-
-        <h2>
-          Orders
-        </h2>
-
-        <div
-          id="orders"
-          class="orders-list">
-
-          Loading orders...
-
-        </div>
-
-      </section>
-
-
-      <section class="staff-section">
-
-        <h2>
-          Inventory
-        </h2>
-
-        <div
-          id="inventory"
-          class="inventory-list">
-
-          Loading inventory...
-
-        </div>
-
-      </section>
-
-
-      <section class="staff-section">
-
-        <h2>
-          Gallery
-        </h2>
-
-        <div
-          id="staffGallery"
-          class="inventory-list">
-
-          Loading gallery...
-
-        </div>
-
-      </section>
+      <div id="inventoryList"></div>
 
     </div>
 
-  </div>
 
-</section>
+    <!-- GALLERY -->
+
+    <div class="panel">
+
+      <h2>Gallery</h2>
+
+      <form id="galleryForm">
+
+        <input
+          id="galleryName"
+          placeholder="Print name"
+          required
+        >
+
+        <textarea
+          id="galleryDescription"
+          placeholder="Description"
+        ></textarea>
+
+        <input
+          id="galleryImage"
+          placeholder="Image URL"
+        >
+
+        <button
+          class="button"
+          type="submit"
+        >
+          Add print
+        </button>
+
+      </form>
+
+
+      <div id="galleryList"></div>
+
+    </div>
+
+  </section>
 
 </main>
-
-
-<footer class="footer">
-
-  <div class="container">
-
-    <p>
-      Friends & Family 3D Prints
-    </p>
-
-  </div>
-
-</footer>
 
 
 <script src="staff.js"></script>
