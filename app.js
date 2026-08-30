@@ -1,11 +1,18 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwXBlRSPgE_ufvIPhw9LqTdX95CW3YYjQcLajL4XcKAv6GbAKVErdYDiSrD0AXAK09_/exec";
 
+
 let shopData = {
   gallery: [],
   inventory: []
 };
 
-async function api(action, data = {}) {
+
+async function api(action, data) {
+
+  if (data === undefined) {
+    data = {};
+  }
+
   const url =
     API_URL +
     "?action=" +
@@ -13,36 +20,40 @@ async function api(action, data = {}) {
     "&data=" +
     encodeURIComponent(JSON.stringify(data));
 
-  const response = await fetch(url);
+  const response =
+    await fetch(url);
 
   if (!response.ok) {
-    throw new Error("Could not connect to Google Apps Script.");
+    throw new Error(
+      "Google Apps Script returned an error."
+    );
   }
 
   return await response.json();
 }
 
+
 function escapeHTML(value) {
-  return String(value ?? "")
+
+  return String(value || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+
 }
 
-async function loadShop() {
-  const gallery = document.getElementById("galleryGrid");
 
-  if (!gallery) {
-    return;
-  }
+async function loadShop() {
+
+  const gallery =
+    document.getElementById("galleryGrid");
 
   try {
-    const response = await api("catalog");
 
- 
-  
+    const response =
+      await api("catalog");
 
     shopData = response;
 
@@ -51,17 +62,24 @@ async function loadShop() {
     loadFilamentTypes();
 
   } catch (error) {
+
     gallery.innerHTML =
-      '<div class="error-box">' +
-      '<h3>Shop unavailable</h3>' +
-      '<p>' +
+      "<div class='error-box'>" +
+      "<h3>Shop unavailable</h3>" +
+      "<p>" +
       escapeHTML(error.message) +
-      '</p>' +
-      '</div>';
+      "</p>" +
+      "</div>";
+
+    console.error(error);
+
   }
+
 }
 
+
 function loadGallery() {
+
   const gallery =
     document.getElementById("galleryGrid");
 
@@ -69,59 +87,74 @@ function loadGallery() {
     shopData.gallery || [];
 
   if (prints.length === 0) {
+
     gallery.innerHTML =
-      '<div class="empty">' +
-      '<h3>No prints yet</h3>' +
-      '<p>Add a print to the Gallery sheet.</p>' +
-      '</div>';
+      "<div class='empty'>" +
+      "<h3>No prints yet</h3>" +
+      "<p>Add prints to the Gallery sheet.</p>" +
+      "</div>";
 
     return;
+
   }
 
-  gallery.innerHTML = prints.map(function(print) {
 
-    let imageHTML;
+  gallery.innerHTML =
+    prints.map(function(print) {
 
-    if (print.imageUrl) {
-      imageHTML =
-        '<img src="' +
-        escapeHTML(print.imageUrl) +
-        '" alt="' +
-        escapeHTML(print.name) +
-        '">';
-    } else {
-      imageHTML =
-        '<div class="no-image">3D PRINT</div>';
-    }
+      let image = "";
 
-    return (
-      '<article class="print-card">' +
+      if (print.imageUrl) {
 
-        imageHTML +
-
-        '<div class="print-info">' +
-
-          '<h3>' +
+        image =
+          "<img src='" +
+          escapeHTML(print.imageUrl) +
+          "' alt='" +
           escapeHTML(print.name) +
-          '</h3>' +
+          "'>";
 
-          '<p>' +
-          escapeHTML(print.description || "") +
-          '</p>' +
+      } else {
 
-          '<button class="button order-print" ' +
-          'data-id="' +
-          escapeHTML(print.id) +
-          '">' +
-          'Order this' +
-          '</button>' +
+        image =
+          "<div class='no-image'>3D PRINT</div>";
 
-        '</div>' +
+      }
 
-      '</article>'
-    );
 
-  }).join("");
+      return (
+        "<article class='print-card'>" +
+
+          image +
+
+          "<div class='print-info'>" +
+
+            "<h3>" +
+            escapeHTML(print.name) +
+            "</h3>" +
+
+            "<p>" +
+            escapeHTML(
+              print.description
+            ) +
+            "</p>" +
+
+            "<button " +
+            "class='button order-print' " +
+            "data-id='" +
+            escapeHTML(print.id) +
+            "'>" +
+
+            "Order this" +
+
+            "</button>" +
+
+          "</div>" +
+
+        "</article>"
+      );
+
+    }).join("");
+
 
   document
     .querySelectorAll(".order-print")
@@ -131,39 +164,50 @@ function loadGallery() {
         "click",
         function() {
 
-          const select =
-            document.getElementById("printSelect");
+          const orderType =
+            document.getElementById(
+              "orderType"
+            );
 
-          if (select) {
-            select.value =
-              button.dataset.id;
-          }
+          const printSelect =
+            document.getElementById(
+              "printSelect"
+            );
 
-          const order =
-            document.getElementById("order");
+          orderType.value =
+            "gallery";
 
-          if (order) {
-            order.scrollIntoView({
+          updateOrderType();
+
+          printSelect.value =
+            button.dataset.id;
+
+          document
+            .getElementById("order")
+            .scrollIntoView({
               behavior: "smooth"
             });
-          }
 
         }
       );
 
     });
+
 }
 
-function loadPrints() {
-  const select =
-    document.getElementById("printSelect");
 
-  if (!select) {
-    return;
-  }
+function loadPrints() {
+
+  const select =
+    document.getElementById(
+      "printSelect"
+    );
 
   select.innerHTML =
-    '<option value="">Choose a print...</option>';
+    "<option value=''>" +
+    "Choose a print..." +
+    "</option>";
+
 
   (shopData.gallery || [])
     .forEach(function(print) {
@@ -180,17 +224,19 @@ function loadPrints() {
       select.appendChild(option);
 
     });
+
 }
 
-function loadFilamentTypes() {
-  const select =
-    document.getElementById("typeSelect");
 
-  if (!select) {
-    return;
-  }
+function loadFilamentTypes() {
+
+  const select =
+    document.getElementById(
+      "typeSelect"
+    );
 
   const types = [];
+
 
   (shopData.inventory || [])
     .forEach(function(item) {
@@ -198,57 +244,75 @@ function loadFilamentTypes() {
       const available =
         String(item.inStock)
           .toLowerCase() !== "false";
+
 
       if (
         available &&
         item.type &&
         !types.includes(item.type)
       ) {
+
         types.push(item.type);
+
       }
 
     });
 
+
   select.innerHTML =
-    '<option value="">Choose a type...</option>';
+    "<option value=''>" +
+    "Choose a type..." +
+    "</option>";
+
 
   types.forEach(function(type) {
 
     const option =
       document.createElement("option");
 
-    option.value = type;
-    option.textContent = type;
+    option.value =
+      type;
+
+    option.textContent =
+      type;
 
     select.appendChild(option);
 
   });
 
+
   loadColors();
+
 }
 
+
 function loadColors() {
-  const typeSelect =
-    document.getElementById("typeSelect");
+
+  const type =
+    document.getElementById(
+      "typeSelect"
+    ).value;
+
 
   const colorSelect =
-    document.getElementById("colorSelect");
+    document.getElementById(
+      "colorSelect"
+    );
 
-  if (!typeSelect || !colorSelect) {
-    return;
-  }
-
-  const selectedType =
-    typeSelect.value;
 
   colorSelect.innerHTML =
-    '<option value="">Choose a color...</option>';
+    "<option value=''>" +
+    "Choose a color..." +
+    "</option>";
 
-  if (!selectedType) {
+
+  if (!type) {
     return;
   }
 
+
   const colors = [];
+
 
   (shopData.inventory || [])
     .forEach(function(item) {
@@ -257,101 +321,218 @@ function loadColors() {
         String(item.inStock)
           .toLowerCase() !== "false";
 
+
       if (
         available &&
-        item.type === selectedType &&
+        item.type === type &&
         item.color &&
         !colors.includes(item.color)
       ) {
+
         colors.push(item.color);
+
       }
 
     });
+
 
   colors.forEach(function(color) {
 
     const option =
       document.createElement("option");
 
-    option.value = color;
-    option.textContent = color;
+    option.value =
+      color;
+
+    option.textContent =
+      color;
 
     colorSelect.appendChild(option);
 
   });
+
 }
 
+
+function updateOrderType() {
+
+  const type =
+    document.getElementById(
+      "orderType"
+    ).value;
+
+
+  const galleryChoice =
+    document.getElementById(
+      "galleryChoice"
+    );
+
+
+  const customFileChoice =
+    document.getElementById(
+      "customFileChoice"
+    );
+
+
+  const printSelect =
+    document.getElementById(
+      "printSelect"
+    );
+
+
+  const fileInput =
+    document.getElementById(
+      "file"
+    );
+
+
+  if (type === "gallery") {
+
+    galleryChoice.style.display =
+      "block";
+
+    customFileChoice.style.display =
+      "none";
+
+    printSelect.required =
+      true;
+
+    fileInput.required =
+      false;
+
+  }
+
+  else if (type === "custom") {
+
+    galleryChoice.style.display =
+      "none";
+
+    customFileChoice.style.display =
+      "block";
+
+    printSelect.required =
+      false;
+
+    fileInput.required =
+      true;
+
+  }
+
+  else {
+
+    galleryChoice.style.display =
+      "none";
+
+    customFileChoice.style.display =
+      "none";
+
+    printSelect.required =
+      false;
+
+    fileInput.required =
+      false;
+
+  }
+
+}
+
+
 function fileToBase64(file) {
+
   return new Promise(function(resolve, reject) {
 
     const reader =
       new FileReader();
 
-    reader.onload = function() {
 
-      const result =
-        reader.result;
+    reader.onload =
+      function() {
 
-      const base64 =
-        result.split(",")[1];
+        const result =
+          reader.result;
 
-      resolve(base64);
+        resolve(
+          result.split(",")[1]
+        );
 
-    };
+      };
 
-    reader.onerror = reject;
+
+    reader.onerror =
+      reject;
+
 
     reader.readAsDataURL(file);
 
   });
+
 }
 
-const typeSelect =
-  document.getElementById("typeSelect");
 
-if (typeSelect) {
+document
+  .getElementById("orderType")
+  .addEventListener(
+    "change",
+    updateOrderType
+  );
 
-  typeSelect.addEventListener(
+
+document
+  .getElementById("typeSelect")
+  .addEventListener(
     "change",
     loadColors
   );
 
-}
 
-const orderForm =
-  document.getElementById("orderForm");
-
-if (orderForm) {
-
-  orderForm.addEventListener(
+document
+  .getElementById("orderForm")
+  .addEventListener(
     "submit",
     async function(event) {
 
       event.preventDefault();
 
+
       const result =
-        document.getElementById("orderResult");
+        document.getElementById(
+          "orderResult"
+        );
+
 
       result.textContent =
         "Submitting order...";
 
+
       try {
 
         const formData =
-          new FormData(orderForm);
+          new FormData(this);
+
+
+        const orderType =
+          formData.get(
+            "orderType"
+          );
+
 
         let file = null;
 
+
         const fileInput =
-          document.getElementById("file");
+          document.getElementById(
+            "file"
+          );
+
 
         if (
-          fileInput &&
+          orderType === "custom" &&
           fileInput.files.length > 0
         ) {
 
           const selectedFile =
             fileInput.files[0];
+
 
           if (
             selectedFile.size >
@@ -359,17 +540,20 @@ if (orderForm) {
           ) {
 
             throw new Error(
-              "File must be smaller than 15 MB."
+              "Your file must be smaller than 15 MB."
             );
 
           }
+
 
           const base64 =
             await fileToBase64(
               selectedFile
             );
 
+
           file = {
+
             name:
               selectedFile.name,
 
@@ -379,9 +563,11 @@ if (orderForm) {
 
             base64:
               base64
+
           };
 
         }
+
 
         const order = {
 
@@ -390,6 +576,9 @@ if (orderForm) {
 
           contact:
             formData.get("contact"),
+
+          orderType:
+            orderType,
 
           printId:
             formData.get("printId"),
@@ -400,7 +589,9 @@ if (orderForm) {
             ),
 
           filamentType:
-            formData.get("filamentType"),
+            formData.get(
+              "filamentType"
+            ),
 
           color:
             formData.get("color"),
@@ -413,13 +604,18 @@ if (orderForm) {
 
         };
 
+
         const response =
           await api(
             "createOrder",
             order
           );
 
-        if (!response.ok) {
+
+        if (
+          response &&
+          response.ok === false
+        ) {
 
           throw new Error(
             response.error ||
@@ -428,8 +624,10 @@ if (orderForm) {
 
         }
 
+
         result.className =
           "success-message";
+
 
         result.innerHTML =
           "<strong>Order submitted!</strong>" +
@@ -443,9 +641,13 @@ if (orderForm) {
           "<br><br>" +
           "Save this number to track your order.";
 
-        orderForm.reset();
 
+        this.reset();
+
+
+        updateOrderType();
         loadFilamentTypes();
+
 
       } catch (error) {
 
@@ -455,48 +657,54 @@ if (orderForm) {
         result.textContent =
           error.message;
 
+        console.error(error);
+
       }
 
     }
   );
 
-}
 
-const trackForm =
-  document.getElementById("trackForm");
-
-if (trackForm) {
-
-  trackForm.addEventListener(
+document
+  .getElementById("trackForm")
+  .addEventListener(
     "submit",
     async function(event) {
 
       event.preventDefault();
 
+
       const result =
-        document.getElementById("trackResult");
+        document.getElementById(
+          "trackResult"
+        );
+
 
       result.innerHTML =
         "<p>Looking up order...</p>";
 
+
       try {
 
         const formData =
-          new FormData(trackForm);
+          new FormData(this);
 
-        const orderNumber =
-          formData.get("orderNumber");
 
         const response =
           await api(
             "track",
             {
               orderNumber:
-                orderNumber
+                formData.get(
+                  "orderNumber"
+                )
             }
           );
 
-        if (!response.ok) {
+
+        if (
+          response.ok === false
+        ) {
 
           throw new Error(
             response.error ||
@@ -505,51 +713,55 @@ if (trackForm) {
 
         }
 
+
         const order =
           response.order;
 
-        result.innerHTML =
-          '<div class="tracking-card">' +
 
-            '<div class="tracking-number">' +
-              '<span>Order</span>' +
-              '<strong>' +
+        result.innerHTML =
+
+          "<div class='tracking-card'>" +
+
+            "<div class='tracking-number'>" +
+              "<span>Order</span>" +
+              "<strong>" +
               escapeHTML(
                 order.orderNumber
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-            '<div class="tracking-status">' +
-              '<span>Status</span>' +
-              '<strong>' +
+            "<div class='tracking-status'>" +
+              "<span>Status</span>" +
+              "<strong>" +
               escapeHTML(
                 order.status
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-            '<div class="tracking-row">' +
-              '<span>Print</span>' +
-              '<strong>' +
+            "<div class='tracking-row'>" +
+              "<span>Print</span>" +
+              "<strong>" +
               escapeHTML(
-                order.printName
+                order.printName ||
+                "Customer model"
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-            '<div class="tracking-row">' +
-              '<span>Quantity</span>' +
-              '<strong>' +
+            "<div class='tracking-row'>" +
+              "<span>Quantity</span>" +
+              "<strong>" +
               escapeHTML(
                 order.quantity
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-            '<div class="tracking-row">' +
-              '<span>Filament</span>' +
-              '<strong>' +
+            "<div class='tracking-row'>" +
+              "<span>Filament</span>" +
+              "<strong>" +
               escapeHTML(
                 order.filamentType
               ) +
@@ -557,34 +769,37 @@ if (trackForm) {
               escapeHTML(
                 order.color
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-            '<div class="tracking-row">' +
-              '<span>Estimated completion</span>' +
-              '<strong>' +
+            "<div class='tracking-row'>" +
+              "<span>Estimated completion</span>" +
+              "<strong>" +
               (
                 order.eta
                   ? escapeHTML(order.eta)
                   : "Not set yet"
               ) +
-              '</strong>' +
-            '</div>' +
+              "</strong>" +
+            "</div>" +
 
-          '</div>';
+          "</div>";
+
 
       } catch (error) {
 
         result.innerHTML =
-          '<div class="error-box">' +
-          escapeHTML(error.message) +
-          '</div>';
+          "<div class='error-box'>" +
+          escapeHTML(
+            error.message
+          ) +
+          "</div>";
 
       }
 
     }
   );
 
-}
 
+updateOrderType();
 loadShop();
