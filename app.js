@@ -381,88 +381,74 @@ function loadFilamentTypes() {
 function loadColors() {
 
   const typeSelect =
-    document.getElementById(
-      "typeSelect"
-    );
+    document.getElementById("typeSelect");
 
   const colorSelect =
-    document.getElementById(
-      "colorSelect"
-    );
+    document.getElementById("colorSelect");
 
-  if (!typeSelect ||
-      !colorSelect) {
+  if (!typeSelect || !colorSelect) {
     return;
   }
 
-
-  const type =
-    typeSelect.value;
-
+  const selectedType =
+    String(typeSelect.value).trim();
 
   colorSelect.innerHTML =
-    "<option value=''>" +
-    "Choose a color..." +
-    "</option>";
+    "<option value=''>Choose a color...</option>";
 
-
-  if (!type) {
+  if (!selectedType) {
     return;
   }
-
 
   const colors = [];
 
+  (shopData.inventory || []).forEach(function(item) {
 
-  (shopData.inventory || [])
-    .forEach(function(item) {
+    const itemType =
+      String(item.type || "").trim();
 
-      const available =
-        String(item.inStock)
-          .toLowerCase() !==
-        "false";
+    const itemColor =
+      String(item.color || "").trim();
 
+    const inStock =
+      String(item.inStock)
+        .trim()
+        .toLowerCase();
 
-      if (
-        available &&
-        String(item.type) ===
-          String(type) &&
-        item.color &&
-        !colors.includes(
-          item.color
-        )
-      ) {
+    const available =
+      inStock !== "false" &&
+      inStock !== "no" &&
+      inStock !== "0" &&
+      inStock !== "";
 
-        colors.push(
-          item.color
-        );
+    if (
+      available &&
+      itemType.toLowerCase() ===
+        selectedType.toLowerCase() &&
+      itemColor &&
+      !colors.some(function(existing) {
+        return existing.toLowerCase() ===
+          itemColor.toLowerCase();
+      })
+    ) {
+      colors.push(itemColor);
+    }
 
-      }
-
-    });
-
+  });
 
   colors.forEach(function(color) {
 
     const option =
-      document.createElement(
-        "option"
-      );
+      document.createElement("option");
 
-    option.value =
-      color;
+    option.value = color;
+    option.textContent = color;
 
-    option.textContent =
-      color;
-
-    colorSelect.appendChild(
-      option
-    );
+    colorSelect.appendChild(option);
 
   });
 
 }
-
 
 /* =========================
    ORDER TYPE
